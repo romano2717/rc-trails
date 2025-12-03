@@ -87,7 +87,6 @@
       font-size: 0.95rem;
     }
 
-    /* MOBILE STYLES */
     @media (max-width: 600px) {
       body {
         padding: 1rem;
@@ -146,7 +145,7 @@
   <div id="trailContainer"></div>
 
   <script>
-    // UPDATED TRAIL DATA
+    // UPDATED TRAILS LIST (ALL 6)
     const trails = [
       {
         address: "San Carlos Heights, Quiot Pardo, Cebu City",
@@ -159,6 +158,30 @@
         trail: "Naga Boardwalk",
         locationEmbed: "https://www.google.com/maps?q=10.210832782684937,123.76046975888036&hl=en&z=17&output=embed&t=k",
         parkingEmbed: "https://www.google.com/maps?q=10.21022837233461,123.76091514274972&hl=en&z=17&output=embed&t=k"
+      },
+      {
+        address: "Maghaway Rd, Talisay City",
+        trail: "Maghaway NDRD",
+        locationEmbed: "https://www.google.com/maps?q=10.267280794723284,123.81680737967811&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://www.google.com/maps?q=10.265969826588377,123.81575773234685&hl=en&z=17&output=embed&t=k"
+      },
+      {
+        address: "Inayagan-Cantao-an Rd, Naga City",
+        trail: "Pangilatan",
+        locationEmbed: "https://www.google.com/maps?q=10.240756141262018,123.76720467201083&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://www.google.com/maps?q=10.23882141883238,123.7673207726221&hl=en&z=17&output=embed&t=k"
+      },
+      {
+        address: "Move Park, Liloan, Cebu",
+        trail: "Move Park",
+        locationEmbed: "https://www.google.com/maps?q=10.40146743565658,123.99931333669014&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://www.google.com/maps?q=10.40146743565658,123.99931333669014&hl=en&z=17&output=embed&t=k"
+      },
+      {
+        address: "Parola Lighthouse, Liloan, Cebu",
+        trail: "Parola",
+        locationEmbed: "https://www.google.com/maps?q=10.3832231808462,124.01856460375143&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://www.google.com/maps?q=10.383303537505636,124.01817295081925&hl=en&z=17&output=embed&t=k"
       }
     ];
 
@@ -209,7 +232,6 @@
       }
     });
 
-    // Initial render
     renderTrail(currentIndex);
   </script>
 </body>

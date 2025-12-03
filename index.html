@@ -82,26 +82,21 @@
   <div id="trailContainer"></div>
 
   <script>
-    // TRAIL LIST (your updated data)
+    // TRAILS WITH FREE GOOGLE MAPS EMBED LINKS
     const trails = [
       {
         address: "San Carlos Heights, Quiot Pardo, Cebu City",
         trail: "San Carlos Heights",
-        locationEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.295728711522854,123.85506848793275&zoom=17&maptype=satellite",
-        parkingEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.294380193590095,123.85568588312827&zoom=17&maptype=satellite"
+        locationEmbed: "https://www.google.com/maps?q=10.295728711522854,123.85506848793275&hl=en&z=17&output=embed",
+        parkingEmbed: "https://www.google.com/maps?q=10.294380193590095,123.85568588312827&hl=en&z=17&output=embed"
       },
       {
         address: "Naga Boardwalk",
         trail: "Naga Boardwalk",
-        locationEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.210832782684937,123.76046975888036&zoom=17&maptype=satellite",
-        parkingEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.21022837233461,123.76091514274972&zoom=17&maptype=satellite"
+        locationEmbed: "https://www.google.com/maps?q=10.210832782684937,123.76046975888036&hl=en&z=17&output=embed",
+        parkingEmbed: "https://www.google.com/maps?q=10.21022837233461,123.76091514274972&hl=en&z=17&output=embed"
       }
     ];
-
-    // IMPORTANT:
-    // The Google Maps Embed API requires an API key.
-    // If you do NOT have an API key, replace the above links with
-    // free embed URLs (I can generate them for you).
 
     let currentIndex = 0;
 

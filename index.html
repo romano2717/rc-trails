@@ -4,13 +4,6 @@
   <meta charset="UTF-8" />
   <title>RC Trail Locations</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Leaflet CSS (Open-source map library) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -56,6 +49,21 @@
       font-size: 0.9rem;
     }
 
+    .directions-btn {
+      background: #0b74ff;
+      color: white;
+      border: none;
+      margin-top: 0.6rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .directions-btn:hover {
+      background: #005fe0;
+    }
+
     button:disabled {
       opacity: 0.4;
       cursor: default;
@@ -75,6 +83,14 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
+    iframe {
+      width: 100%;
+      height: 280px;
+      border: 0;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
     .label {
       font-weight: bold;
       margin-top: 0.6rem;
@@ -84,13 +100,6 @@
 
     .trail-box div {
       font-size: 0.95rem;
-    }
-
-    .map {
-      width: 100%;
-      height: 280px;
-      border-radius: 6px;
-      margin-top: 0.5rem;
     }
 
     @media (max-width: 600px) {
@@ -122,7 +131,7 @@
         font-size: 0.8rem;
       }
 
-      .map {
+      iframe {
         height: 320px;
       }
 
@@ -150,11 +159,8 @@
 
   <div id="trailContainer"></div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <script>
-    // Trails: using Lat/Lng for open-source maps (OpenStreetMap + Leaflet)
+    // Trails: Location map + Parking map
     const trails = [
       {
         address: "San Carlos Heights, Quiot Pardo, Cebu City",
@@ -203,8 +209,36 @@
         locationLng: 124.01856460375143,
         parkingLat: 10.383303537505636,
         parkingLng: 124.01817295081925
+      },
+      {
+        address: "Tuyan, Naga City, Cebu",
+        trail: "Magdook",
+        locationLat: 10.231043968089399,
+        locationLng: 123.7585774416605,
+        parkingLat: 10.229348054282951,
+        parkingLng: 123.762123543429
       }
     ];
+
+    function makeMapEmbed(lat, lng) {
+      return (
+        "https://www.google.com/maps?q=" +
+        lat +
+        "," +
+        lng +
+        "&hl=en&z=17&output=embed&t=k"
+      );
+    }
+
+    function makeDirectionsURL(lat, lng) {
+      return (
+        "https://www.google.com/maps/dir/?api=1&destination=" +
+        lat +
+        "," +
+        lng +
+        "&travelmode=driving"
+      );
+    }
 
     let currentIndex = 0;
 
@@ -213,60 +247,33 @@
     const nextBtn = document.getElementById("nextBtn");
     const pageInfo = document.getElementById("pageInfo");
 
-    // Leaflet map instances (we recreate them when changing page)
-    let locationMap = null;
-    let parkingMap = null;
-
-    function initMapsForTrail(trail) {
-      // Remove old maps if they exist
-      if (locationMap) {
-        locationMap.remove();
-        locationMap = null;
-      }
-      if (parkingMap) {
-        parkingMap.remove();
-        parkingMap = null;
-      }
-
-      // Create Location map
-      locationMap = L.map("locationMap").setView(
-        [trail.locationLat, trail.locationLng],
-        17
-      );
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(locationMap);
-      L.marker([trail.locationLat, trail.locationLng]).addTo(locationMap);
-
-      // Create Parking map
-      parkingMap = L.map("parkingMap").setView(
-        [trail.parkingLat, trail.parkingLng],
-        18
-      );
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(parkingMap);
-      L.marker([trail.parkingLat, trail.parkingLng]).addTo(parkingMap);
-    }
-
     function renderTrail(index) {
-      const trail = trails[index];
+      const t = trails[index];
 
       var html = "";
       html += '<div class="trail-box">';
       html += '  <span class="label">Address:</span>';
-      html += "  <div>" + trail.address + "</div>";
+      html += "  <div>" + t.address + "</div>";
 
       html += '  <span class="label">Trail:</span>';
-      html += "  <div>" + trail.trail + "</div>";
+      html += "  <div>" + t.trail + "</div>";
 
-      html += '  <span class="label">Location Map:</span>';
-      html += '  <div id="locationMap" class="map"></div>';
+      html += '  <span class="label">Location:</span>';
+      html +=
+        '  <iframe src="' +
+        makeMapEmbed(t.locationLat, t.locationLng) +
+        '" loading="lazy"></iframe>';
 
-      html += '  <span class="label">Parking Map:</span>';
-      html += '  <div id="parkingMap" class="map"></div>';
+      html += '  <span class="label">Parking:</span>';
+      html +=
+        '  <iframe src="' +
+        makeMapEmbed(t.parkingLat, t.parkingLng) +
+        '" loading="lazy"></iframe>';
+
+      html +=
+        '  <button class="directions-btn" onclick="window.open(\'' +
+        makeDirectionsURL(t.parkingLat, t.parkingLng) +
+        "', '_blank')\">GET DIRECTIONS</button>";
 
       html += "</div>";
 
@@ -275,9 +282,6 @@
       pageInfo.textContent = "Trail " + (index + 1) + " of " + trails.length;
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === trails.length - 1;
-
-      // After the HTML is in place, initialise the maps for this trail
-      initMapsForTrail(trail);
     }
 
     prevBtn.addEventListener("click", function () {
@@ -294,7 +298,6 @@
       }
     });
 
-    // Initial render
     renderTrail(currentIndex);
   </script>
 </body>

@@ -49,36 +49,27 @@
       font-size: 0.9rem;
     }
 
-    .directions-btn {
+    .directions-inline {
       background: #0b74ff;
       color: white;
       border: none;
-      margin-top: 0.6rem;
-      padding: 0.5rem 1rem;
+      padding: 0.25rem 0.6rem;
+      margin-left: 8px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
 
-    .directions-btn:hover {
+    .directions-inline:hover {
       background: #005fe0;
-    }
-
-    .copy-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 0.4rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: #0b74ff;
-      text-decoration: underline;
     }
 
     .copy-icon {
       cursor: pointer;
       font-size: 1.1rem;
+      margin-left: 6px;
       user-select: none;
+      vertical-align: middle;
     }
 
     button:disabled {
@@ -115,7 +106,12 @@
       font-size: 0.95rem;
     }
 
-    .trail-box div {
+    .parking-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0.6rem;
+      font-weight: bold;
       font-size: 0.95rem;
     }
 
@@ -156,8 +152,8 @@
         padding: 0.85rem;
       }
 
-      .trail-box div,
-      .label {
+      .label,
+      .parking-row {
         font-size: 0.9rem;
       }
     }
@@ -238,13 +234,7 @@
     ];
 
     function makeMapEmbed(lat, lng) {
-      return (
-        "https://www.google.com/maps?q=" +
-        lat +
-        "," +
-        lng +
-        "&hl=en&z=17&output=embed&t=k"
-      );
+      return "https://www.google.com/maps?q=" + lat + "," + lng + "&hl=en&z=17&output=embed&t=k";
     }
 
     function makeGmapsLink(lat, lng) {
@@ -270,7 +260,7 @@
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert("Copied link to clipboard!");
+      alert("Copied parking link!");
     }
 
     function renderTrail(index) {
@@ -278,42 +268,33 @@
 
       const gmapsLink = makeGmapsLink(t.parkingLat, t.parkingLng);
 
-      var html = "";
+      let html = "";
       html += '<div class="trail-box">';
-      html += '  <span class="label">Address:</span>';
-      html += "  <div>" + t.address + "</div>";
+      html += '<span class="label">Address:</span>';
+      html += "<div>" + t.address + "</div>";
 
-      html += '  <span class="label">Trail:</span>';
-      html += "  <div>" + t.trail + "</div>";
+      html += '<span class="label">Trail:</span>';
+      html += "<div>" + t.trail + "</div>";
 
-      html += '  <span class="label">Location:</span>';
+      html += '<span class="label">Location:</span>';
       html +=
-        '  <iframe src="' +
+        '<iframe src="' +
         makeMapEmbed(t.locationLat, t.locationLng) +
         '" loading="lazy"></iframe>';
 
-      html += '  <span class="label">Parking:</span>';
+      // Parking label row with icon + directions btn
       html +=
-        '  <iframe src="' +
+        '<div class="parking-row">Parking:<span class="copy-icon" onclick="copyToClipboard(\'' +
+        gmapsLink +
+        '\')">📋</span>' +
+        '<button class="directions-inline" onclick="window.open(\'' +
+        makeDirectionsURL(t.parkingLat, t.parkingLng) +
+        '\', \'_blank\')">GET DIRECTIONS</button></div>';
+
+      html +=
+        '<iframe src="' +
         makeMapEmbed(t.parkingLat, t.parkingLng) +
         '" loading="lazy"></iframe>';
-
-      // Google Maps link + copy button
-      html +=
-        '<div class="copy-link" onclick="window.open(\'' +
-        gmapsLink +
-        '\', \'_blank\')">Google Maps Link</div>';
-
-      html +=
-        '<span class="copy-icon" onclick="copyToClipboard(\'' +
-        gmapsLink +
-        '\')">📋</span>';
-
-      // Directions button
-      html +=
-        '<button class="directions-btn" onclick="window.open(\'' +
-        makeDirectionsURL(t.parkingLat, t.parkingLng) +
-        "', '_blank')\">GET DIRECTIONS</button>";
 
       html += "</div>";
 
@@ -324,18 +305,12 @@
       nextBtn.disabled = index === trails.length - 1;
     }
 
-    prevBtn.addEventListener("click", function () {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderTrail(currentIndex);
-      }
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) currentIndex--, renderTrail(currentIndex);
     });
 
-    nextBtn.addEventListener("click", function () {
-      if (currentIndex < trails.length - 1) {
-        currentIndex++;
-        renderTrail(currentIndex);
-      }
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < trails.length - 1) currentIndex++, renderTrail(currentIndex);
     });
 
     renderTrail(currentIndex);

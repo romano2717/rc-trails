@@ -33,11 +33,18 @@
       font-size: 1.5rem;
     }
 
-    .pager {
+    .top-right {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin-left: auto;
+      flex-wrap: wrap;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     button {
@@ -47,6 +54,20 @@
       cursor: pointer;
       background: #ffffff;
       font-size: 0.9rem;
+    }
+
+    .share-btn {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .share-btn:hover {
+      background: #059669;
     }
 
     .directions-inline {
@@ -125,10 +146,9 @@
         align-items: flex-start;
       }
 
-      .pager {
-        margin-left: 0;
+      .top-right {
         align-self: stretch;
-        justify-content: flex-end;
+        justify-content: space-between;
       }
 
       h1 {
@@ -163,10 +183,13 @@
 <body>
   <div class="top-bar">
     <h1>RC Trail Locations</h1>
-    <div class="pager">
-      <button id="prevBtn">Prev</button>
-      <span id="pageInfo"></span>
-      <button id="nextBtn">Next</button>
+    <div class="top-right">
+      <div class="pager">
+        <button id="prevBtn">Prev</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+      </div>
+      <button id="shareBtn" class="share-btn">COPY LINK</button>
     </div>
   </div>
 
@@ -242,25 +265,45 @@
     }
 
     function makeDirectionsURL(lat, lng) {
-      return (
-        "https://www.google.com/maps/dir/?api=1&destination=" +
-        lat +
-        "," +
-        lng +
-        "&travelmode=driving"
-      );
+      return "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng + "&travelmode=driving";
     }
 
-    let currentIndex = 0;
+    function getShareUrl(index) {
+      var base = window.location.origin + window.location.pathname;
+      return base + "?trail=" + (index + 1);
+    }
+
+    function getInitialIndex() {
+      var params = new URLSearchParams(window.location.search);
+      var t = params.get("trail");
+      if (t) {
+        var i = parseInt(t, 10) - 1;
+        if (!isNaN(i) && i >= 0 && i < trails.length) {
+          return i;
+        }
+      }
+      return 0;
+    }
+
+    function updateUrl(index) {
+      var newUrl = getShareUrl(index);
+      window.history.replaceState(null, "", newUrl);
+    }
+
+    function updateTitle(index) {
+      document.title = "RC Trail Locations — " + trails[index].trail;
+    }
+
+    let currentIndex = getInitialIndex();
 
     const trailContainer = document.getElementById("trailContainer");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const pageInfo = document.getElementById("pageInfo");
+    const shareBtn = document.getElementById("shareBtn");
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert("Copied parking link!");
     }
 
     function renderTrail(index) {
@@ -277,42 +320,54 @@
       html += "<div>" + t.trail + "</div>";
 
       html += '<span class="label">Location:</span>';
-      html +=
-        '<iframe src="' +
-        makeMapEmbed(t.locationLat, t.locationLng) +
-        '" loading="lazy"></iframe>';
+      html += '<iframe src="' + makeMapEmbed(t.locationLat, t.locationLng) + '" loading="lazy"></iframe>';
 
-      // Parking label row with icon + directions btn
+      // Parking row with copy + directions
       html +=
-        '<div class="parking-row">Parking:<span class="copy-icon" onclick="copyToClipboard(\'' +
+        '<div class="parking-row">Parking:' +
+        '<span class="copy-icon" onclick="copyToClipboard(\'' +
         gmapsLink +
         '\')">📋</span>' +
         '<button class="directions-inline" onclick="window.open(\'' +
         makeDirectionsURL(t.parkingLat, t.parkingLng) +
         '\', \'_blank\')">GET DIRECTIONS</button></div>';
 
-      html +=
-        '<iframe src="' +
-        makeMapEmbed(t.parkingLat, t.parkingLng) +
-        '" loading="lazy"></iframe>';
+      html += '<iframe src="' + makeMapEmbed(t.parkingLat, t.parkingLng) + '" loading="lazy"></iframe>';
 
       html += "</div>";
 
       trailContainer.innerHTML = html;
 
       pageInfo.textContent = "Trail " + (index + 1) + " of " + trails.length;
+
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === trails.length - 1;
+
+      // update URL + page title
+      updateUrl(index);
+      updateTitle(index);
     }
 
     prevBtn.addEventListener("click", () => {
-      if (currentIndex > 0) currentIndex--, renderTrail(currentIndex);
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderTrail(currentIndex);
+      }
     });
 
     nextBtn.addEventListener("click", () => {
-      if (currentIndex < trails.length - 1) currentIndex++, renderTrail(currentIndex);
+      if (currentIndex < trails.length - 1) {
+        currentIndex++;
+        renderTrail(currentIndex);
+      }
     });
 
+    shareBtn.addEventListener("click", () => {
+      const link = getShareUrl(currentIndex);
+      copyToClipboard(link);
+    });
+
+    // Initial render
     renderTrail(currentIndex);
   </script>
 </body>

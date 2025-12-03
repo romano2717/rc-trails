@@ -4,25 +4,59 @@
   <meta charset="UTF-8" />
   <title>RC Trail Locations</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 900px; 
+      margin: 0 auto; 
+      padding: 1.5rem; 
+      line-height: 1.5;
+    }
     h1 { text-align: center; }
-    .trail { border: 1px solid #ccc; padding: 0.8rem; margin-bottom: 0.8rem; border-radius: 6px; }
-    .trail h2 { margin: 0 0 0.3rem; font-size: 1.1rem; }
-    .tags { font-size: 0.85rem; opacity: 0.7; }
+    .trail-box {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+    }
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: 0;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 0.6rem;
+      display: block;
+    }
   </style>
 </head>
+
 <body>
   <h1>RC Trail Locations</h1>
 
-  <div class="trail">
-    <h2>Example Trail Name</h2>
-    <div><strong>Location:</strong> City, Country</div>
-    <div><strong>Surface:</strong> Dirt / Rocks</div>
-    <div><strong>Difficulty:</strong> Easy</div>
-    <div class="tags">#crawler #trail</div>
-    <div><a href="https://maps.google.com" target="_blank">View on map</a></div>
-  </div>
+  <!-- START OF ONE TRAIL ENTRY -->
+  <div class="trail-box">
 
-  <!-- Duplicate .trail blocks above for each spot -->
+    <span class="label">Address:</span>
+    <div>Brgy. San Jose, San Fernando, Cebu</div>
+
+    <span class="label">Trail:</span>
+    <div>Riverbed Trail</div>
+
+    <span class="label">Location:</span>
+    <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.0494507707676!2d123.787!3d10.160!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDA5JzM2LjAiTiAxMjPCsDQ3JzEzLjAiRQ!5e0!3m2!1sen!2sph!4v0000000000">
+    </iframe>
+
+    <span class="label">Parking:</span>
+    <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.0494507707676!2d123.787!3d10.160!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDA5JzM2LjAiTiAxMjPCsDQ3JzEzLjAiRQ!5e0!3m2!1sen!2sph!4v0000000000">
+    </iframe>
+
+  </div>
+  <!-- END OF ONE TRAIL ENTRY -->
+
 </body>
 </html>

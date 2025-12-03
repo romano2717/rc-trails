@@ -87,6 +87,14 @@
       font-size: 0.95rem;
     }
 
+    .streetview-img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      display: block;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 1rem;
@@ -145,46 +153,45 @@
   <div id="trailContainer"></div>
 
   <script>
-    // ALL TRAILS — PARKING NOW USES STREET VIEW
+    // Trails: satellite Location + static Street View Parking image
     const trails = [
-  {
-    address: "San Carlos Heights, Quiot Pardo, Cebu City",
-    trail: "San Carlos Heights",
-    locationEmbed: "https://www.google.com/maps?q=10.295771250758687,123.8498257077089&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.294496,123.855539&cbp=11,0,0,0,0&output=embed"
-  },
-  {
-    address: "Naga Boardwalk",
-    trail: "Naga Boardwalk",
-    locationEmbed: "https://www.google.com/maps?q=10.210832782684937,123.76046975888036&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.210155,123.760923&cbp=11,0,0,0,0&output=embed"
-  },
-  {
-    address: "Maghaway Rd, Talisay City",
-    trail: "Maghaway NDRD",
-    locationEmbed: "https://www.google.com/maps?q=10.267280794723284,123.81680737967811&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.266015,123.815760&cbp=11,0,0,0,0&output=embed"
-  },
-  {
-    address: "Inayagan-Cantao-an Rd, Naga City",
-    trail: "Pangilatan",
-    locationEmbed: "https://www.google.com/maps?q=10.240756141262018,123.76720467201083&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.238957,123.767348&cbp=11,0,0,0,0&output=embed"
-  },
-  {
-    address: "Move Park, Liloan, Cebu",
-    trail: "Move Park",
-    locationEmbed: "https://www.google.com/maps?q=10.40146743565658,123.99931333669014&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.401444,123.999386&cbp=11,0,0,0,0&output=embed"
-  },
-  {
-    address: "Parola Lighthouse, Liloan, Cebu",
-    trail: "Parola",
-    locationEmbed: "https://www.google.com/maps?q=10.3832231808462,124.01856460375143&hl=en&z=17&output=embed&t=k",
-    parkingEmbed: "https://www.google.com/maps?q=&layer=c&cbll=10.383340,124.018130&cbp=11,0,0,0,0&output=embed"
-  }
-];
-
+      {
+        address: "San Carlos Heights, Quiot Pardo, Cebu City",
+        trail: "San Carlos Heights",
+        locationEmbed: "https://www.google.com/maps?q=10.295771250758687,123.8498257077089&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.294496,123.855539"
+      },
+      {
+        address: "Naga Boardwalk",
+        trail: "Naga Boardwalk",
+        locationEmbed: "https://www.google.com/maps?q=10.210832782684937,123.76046975888036&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.210155,123.760923"
+      },
+      {
+        address: "Maghaway Rd, Talisay City",
+        trail: "Maghaway NDRD",
+        locationEmbed: "https://www.google.com/maps?q=10.267280794723284,123.81680737967811&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.266015,123.815760"
+      },
+      {
+        address: "Inayagan-Cantao-an Rd, Naga City",
+        trail: "Pangilatan",
+        locationEmbed: "https://www.google.com/maps?q=10.240756141262018,123.76720467201083&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.238957,123.767348"
+      },
+      {
+        address: "Move Park, Liloan, Cebu",
+        trail: "Move Park",
+        locationEmbed: "https://www.google.com/maps?q=10.40146743565658,123.99931333669014&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.401444,123.999386"
+      },
+      {
+        address: "Parola Lighthouse, Liloan, Cebu",
+        trail: "Parola",
+        locationEmbed: "https://www.google.com/maps?q=10.3832231808462,124.01856460375143&hl=en&z=17&output=embed&t=k",
+        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.383340,124.018130"
+      }
+    ];
 
     let currentIndex = 0;
 
@@ -207,8 +214,8 @@
       html += '  <span class="label">Location:</span>';
       html += '  <iframe src="' + trail.locationEmbed + '" loading="lazy"></iframe>';
 
-      html += '  <span class="label">Parking (Street View):</span>';
-      html += '  <iframe src="' + trail.parkingEmbed + '" loading="lazy"></iframe>';
+      html += '  <span class="label">Parking (Street View Image):</span>';
+      html += '  <img src="' + trail.parkingEmbed + '" alt="Street View near parking for ' + trail.trail + '" class="streetview-img" />';
 
       html += '</div>';
 
@@ -233,6 +240,7 @@
       }
     });
 
+    // Initial render
     renderTrail(currentIndex);
   </script>
 </body>

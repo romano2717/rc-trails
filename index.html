@@ -82,27 +82,26 @@
   <div id="trailContainer"></div>
 
   <script>
-    // List of trails (add or edit entries here)
+    // TRAIL LIST (your updated data)
     const trails = [
       {
-        address: "Brgy. San Jose, San Fernando, Cebu",
-        trail: "Riverbed Trail",
-        locationEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.0494507707676!2d123.787!3d10.160!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDA5JzM2LjAiTiAxMjPCsDQ3JzEzLjAiRQ!5e0!3m2!1sen!2sph!4v0000000000",
-        parkingEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.0494507707676!2d123.787!3d10.160!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDA5JzM2LjAiTiAxMjPCsDQ3JzEzLjAiRQ!5e0!3m2!1sen!2sph!4v0000000000"
+        address: "San Carlos Heights, Quiot Pardo, Cebu City",
+        trail: "San Carlos Heights",
+        locationEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.295728711522854,123.85506848793275&zoom=17&maptype=satellite",
+        parkingEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.294380193590095,123.85568588312827&zoom=17&maptype=satellite"
       },
       {
-        address: "Sample Address 2, City, Country",
-        trail: "Hill Climb Trail",
-        locationEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509374!2d144.95565131589656!3d-37.8173279797517!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577c3b7f2cd4a0!2sSomewhere!5e0!3m2!1sen!2sau!4v0000000000",
-        parkingEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509374!2d144.95565131589656!3d-37.8173279797517!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577c3b7f2cd4a0!2sSomewhere!5e0!3m2!1sen!2sau!4v0000000000"
-      },
-      {
-        address: "Sample Address 3, City, Country",
-        trail: "Forest Loop Trail",
-        locationEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.999821217389!2d2.292292615674617!3d48.85837307928705!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAnotherPlace!5e0!3m2!1sen!2sfr!4v0000000000",
-        parkingEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.999821217389!2d2.292292615674617!3d48.85837307928705!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAnotherPlace!5e0!3m2!1sen!2sfr!4v0000000000"
+        address: "Naga Boardwalk",
+        trail: "Naga Boardwalk",
+        locationEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.210832782684937,123.76046975888036&zoom=17&maptype=satellite",
+        parkingEmbed: "https://www.google.com/maps/embed/v1/view?key=AIzaSyDUMMY&center=10.21022837233461,123.76091514274972&zoom=17&maptype=satellite"
       }
     ];
+
+    // IMPORTANT:
+    // The Google Maps Embed API requires an API key.
+    // If you do NOT have an API key, replace the above links with
+    // free embed URLs (I can generate them for you).
 
     let currentIndex = 0;
 
@@ -123,10 +122,10 @@
           <div>${trail.trail}</div>
 
           <span class="label">Location:</span>
-          <iframe src="${trail.locationEmbed}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <iframe src="${trail.locationEmbed}" loading="lazy"></iframe>
 
           <span class="label">Parking:</span>
-          <iframe src="${trail.parkingEmbed}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <iframe src="${trail.parkingEmbed}" loading="lazy"></iframe>
         </div>
       `;
 
@@ -149,7 +148,7 @@
       }
     });
 
-    // Initial render
+    // First render
     renderTrail(currentIndex);
   </script>
 </body>

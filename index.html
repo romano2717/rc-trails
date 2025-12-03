@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <title>RC Trail Locations</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS (Open-source map library) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -68,14 +75,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    iframe {
-      width: 100%;
-      height: 280px;
-      border: 0;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-    }
-
     .label {
       font-weight: bold;
       margin-top: 0.6rem;
@@ -87,12 +86,11 @@
       font-size: 0.95rem;
     }
 
-    .streetview-img {
+    .map {
       width: 100%;
-      height: auto;
+      height: 280px;
       border-radius: 6px;
       margin-top: 0.5rem;
-      display: block;
     }
 
     @media (max-width: 600px) {
@@ -124,7 +122,7 @@
         font-size: 0.8rem;
       }
 
-      iframe {
+      .map {
         height: 320px;
       }
 
@@ -152,44 +150,59 @@
 
   <div id="trailContainer"></div>
 
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script>
-    // Trails: satellite Location + static Street View Parking image
+    // Trails: using Lat/Lng for open-source maps (OpenStreetMap + Leaflet)
     const trails = [
       {
         address: "San Carlos Heights, Quiot Pardo, Cebu City",
         trail: "San Carlos Heights",
-        locationEmbed: "https://www.google.com/maps?q=10.295771250758687,123.8498257077089&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.294496,123.855539"
+        locationLat: 10.295771250758687,
+        locationLng: 123.8498257077089,
+        parkingLat: 10.294380193590095,
+        parkingLng: 123.85568588312827
       },
       {
         address: "Naga Boardwalk",
         trail: "Naga Boardwalk",
-        locationEmbed: "https://www.google.com/maps?q=10.210832782684937,123.76046975888036&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.210155,123.760923"
+        locationLat: 10.210832782684937,
+        locationLng: 123.76046975888036,
+        parkingLat: 10.21022837233461,
+        parkingLng: 123.76091514274972
       },
       {
         address: "Maghaway Rd, Talisay City",
         trail: "Maghaway NDRD",
-        locationEmbed: "https://www.google.com/maps?q=10.267280794723284,123.81680737967811&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.266015,123.815760"
+        locationLat: 10.267280794723284,
+        locationLng: 123.81680737967811,
+        parkingLat: 10.265969826588377,
+        parkingLng: 123.81575773234685
       },
       {
         address: "Inayagan-Cantao-an Rd, Naga City",
         trail: "Pangilatan",
-        locationEmbed: "https://www.google.com/maps?q=10.240756141262018,123.76720467201083&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.238957,123.767348"
+        locationLat: 10.240756141262018,
+        locationLng: 123.76720467201083,
+        parkingLat: 10.23882141883238,
+        parkingLng: 123.7673207726221
       },
       {
         address: "Move Park, Liloan, Cebu",
         trail: "Move Park",
-        locationEmbed: "https://www.google.com/maps?q=10.40146743565658,123.99931333669014&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.401444,123.999386"
+        locationLat: 10.40146743565658,
+        locationLng: 123.99931333669014,
+        parkingLat: 10.40146743565658,
+        parkingLng: 123.99931333669014
       },
       {
         address: "Parola Lighthouse, Liloan, Cebu",
         trail: "Parola",
-        locationEmbed: "https://www.google.com/maps?q=10.3832231808462,124.01856460375143&hl=en&z=17&output=embed&t=k",
-        parkingEmbed: "https://cbk0.google.com/cbk?output=thumbnail&ll=10.383340,124.018130"
+        locationLat: 10.3832231808462,
+        locationLng: 124.01856460375143,
+        parkingLat: 10.383303537505636,
+        parkingLng: 124.01817295081925
       }
     ];
 
@@ -200,30 +213,71 @@
     const nextBtn = document.getElementById("nextBtn");
     const pageInfo = document.getElementById("pageInfo");
 
+    // Leaflet map instances (we recreate them when changing page)
+    let locationMap = null;
+    let parkingMap = null;
+
+    function initMapsForTrail(trail) {
+      // Remove old maps if they exist
+      if (locationMap) {
+        locationMap.remove();
+        locationMap = null;
+      }
+      if (parkingMap) {
+        parkingMap.remove();
+        parkingMap = null;
+      }
+
+      // Create Location map
+      locationMap = L.map("locationMap").setView(
+        [trail.locationLat, trail.locationLng],
+        17
+      );
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(locationMap);
+      L.marker([trail.locationLat, trail.locationLng]).addTo(locationMap);
+
+      // Create Parking map
+      parkingMap = L.map("parkingMap").setView(
+        [trail.parkingLat, trail.parkingLng],
+        18
+      );
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(parkingMap);
+      L.marker([trail.parkingLat, trail.parkingLng]).addTo(parkingMap);
+    }
+
     function renderTrail(index) {
       const trail = trails[index];
 
       var html = "";
       html += '<div class="trail-box">';
       html += '  <span class="label">Address:</span>';
-      html += '  <div>' + trail.address + '</div>';
+      html += "  <div>" + trail.address + "</div>";
 
       html += '  <span class="label">Trail:</span>';
-      html += '  <div>' + trail.trail + '</div>';
+      html += "  <div>" + trail.trail + "</div>";
 
-      html += '  <span class="label">Location:</span>';
-      html += '  <iframe src="' + trail.locationEmbed + '" loading="lazy"></iframe>';
+      html += '  <span class="label">Location Map:</span>';
+      html += '  <div id="locationMap" class="map"></div>';
 
-      html += '  <span class="label">Parking (Street View Image):</span>';
-      html += '  <img src="' + trail.parkingEmbed + '" alt="Street View near parking for ' + trail.trail + '" class="streetview-img" />';
+      html += '  <span class="label">Parking Map:</span>';
+      html += '  <div id="parkingMap" class="map"></div>';
 
-      html += '</div>';
+      html += "</div>";
 
       trailContainer.innerHTML = html;
 
       pageInfo.textContent = "Trail " + (index + 1) + " of " + trails.length;
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === trails.length - 1;
+
+      // After the HTML is in place, initialise the maps for this trail
+      initMapsForTrail(trail);
     }
 
     prevBtn.addEventListener("click", function () {

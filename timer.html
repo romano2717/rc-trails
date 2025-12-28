@@ -71,6 +71,38 @@
       opacity: 0.95;
     }
 
+    /* PHOTO */
+    .photo-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.7rem;
+    }
+
+    .btn-photo {
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #0b1120;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+
+    .photo-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 0.9rem;
+      object-fit: cover;
+      border: 2px solid rgba(248, 250, 252, 0.7);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    /* TIMER */
     .timer-display {
       text-align: center;
       margin-bottom: 1.25rem;
@@ -90,23 +122,22 @@
     }
 
     .adjust-flash {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  font-weight: 900;
-  font-size: 2.4rem;   /* Bigger */
-  opacity: 0;
-  transition: opacity 0.35s ease, transform 0.35s ease; /* Slower fade */
-  text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
-}
-
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-weight: 900;
+      font-size: 2.4rem;
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+    }
 
     .adjust-flash.show {
-  opacity: 1;
-  transform: translate(-50%, -90%) scale(1.15); /* larger movement */
-}
+      opacity: 1;
+      transform: translate(-50%, -90%) scale(1.15);
+    }
 
     .adjust-flash.show-positive {
       color: #4ade80;
@@ -124,23 +155,16 @@
       opacity: 0.7;
     }
 
-    .status-running {
-      color: #4ade80;
-    }
+    .status-running { color: #4ade80; }
+    .status-paused  { color: #fbbf24; }
+    .status-stopped { color: #94a3b8; }
 
-    .status-paused {
-      color: #fbbf24;
-    }
-
-    .status-stopped {
-      color: #94a3b8;
-    }
-
+    /* BUTTONS */
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.4rem;
     }
 
     .controls button,
@@ -152,44 +176,42 @@
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.08s ease,
-        background 0.15s ease, opacity 0.1s ease;
       background: #111827;
       color: #e5e7eb;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
       text-transform: uppercase;
       letter-spacing: 0.09em;
       min-height: 52px;
-      touch-action: manipulation;
     }
 
-    .controls button:active,
-    .adjustments button:active {
-      transform: translateY(1px) scale(0.98);
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+    .btn-start { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .btn-pause { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .btn-stop  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
+
+    /* DEDUCTIONS */
+    .deductions {
+      margin: 0.7rem 0 1.0rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 0 0.2rem;
     }
 
-    .controls button:disabled,
-    .adjustments button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      box-shadow: none;
+    .deductions label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      letter-spacing: 0.1em;
     }
 
-    .btn-start {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-    }
-
-    .btn-pause {
-      background: linear-gradient(135deg, #f97316, #ea580c);
-    }
-
-    .btn-stop {
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-    }
-
-    .btn-reset {
-      background: linear-gradient(135deg, #64748b, #475569);
+    .deductions input {
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: #0f172a;
+      color: #e5e7eb;
+      font-size: 1rem;
     }
 
     .adjustments {
@@ -197,13 +219,6 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.5rem;
       margin-bottom: 1rem;
-    }
-
-    .adjustments button {
-      font-size: 0.95rem;
-      padding: 0.7rem 0.5rem;
-      letter-spacing: 0.08em;
-      min-height: 52px;
     }
 
     .adjustments button.negative {
@@ -214,99 +229,78 @@
       border: 1px solid rgba(52, 211, 153, 0.7);
     }
 
+    /* DRIVER + SAVE */
     .driver-section {
       display: flex;
       gap: 0.5rem;
-      align-items: stretch;
+      align-items: center;
       margin-bottom: 0.9rem;
-      font-size: 0.8rem;
-      opacity: 0.9;
     }
 
     .driver-section label {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
-      flex: 1;
     }
 
     .driver-section span {
       text-transform: uppercase;
-      letter-spacing: 0.15em;
       font-size: 0.65rem;
+      letter-spacing: 0.15em;
     }
 
     .driver-section input {
       padding: 0.5rem 0.6rem;
-      border-radius: 0.7rem;
-      border: 1px solid rgba(148, 163, 184, 0.5);
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.5);
       background: #020617;
       color: #e5e7eb;
-      font-size: 0.92rem;
-      outline: none;
-      width: 100%;
-    }
-
-    .driver-section input:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+      font-size: 1rem;
     }
 
     .btn-save {
       flex-basis: 40%;
-      padding: 0.7rem 0.7rem;
+      padding: 0.7rem;
       border-radius: 0.9rem;
       border: none;
       background: linear-gradient(135deg, #eab308, #f97316);
       color: #0b1120;
-      font-size: 0.8rem;
       font-weight: 700;
-      cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      white-space: nowrap;
       min-height: 52px;
-    }
-
-    .hint {
-      margin-top: 0.3rem;
-      font-size: 0.7rem;
-      opacity: 0.7;
-      text-align: center;
-    }
-
-    @media (max-width: 480px) {
-      .app {
-        margin: 1rem;
-        padding: 1.25rem;
-      }
-      .time {
-        font-size: 2.4rem;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- This is the area we'll "screenshot" -->
   <div class="app" id="captureArea">
     <div class="app-header">
-      <div class="title">Southside Cebu Rc - Time Attack</div>
+      <div class="title">Time Attack</div>
       <div class="badge">Challenge Mode</div>
     </div>
 
     <div class="logos">
-      <!-- replace src values with your own filenames/paths -->
-      <img src="rcx-cafe-logo.jpg" alt="RCX Cafe Logo" />
-      <img src="southside-rc-logo.png" alt="Southside Cebu RC Logo" />
-      <img src="crawl-me-maybe-logo.jpg" alt="Crawl Me Maybe Logo" />
+      <img src="rcx-cafe-logo.png">
+      <img src="southside-rc-logo.png">
+      <img src="crawl-me-maybe-logo.png">
     </div>
 
+    <!-- PHOTO -->
+    <div class="photo-section">
+      <button id="photoBtn" class="btn-photo">Take Photo</button>
+      <img id="photoPreview" class="photo-preview" style="display:none;">
+      <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;">
+    </div>
+
+    <!-- TIMER -->
     <div class="timer-display">
       <div id="time" class="time">00:00</div>
       <div id="adjustFlash" class="adjust-flash"></div>
       <div id="status" class="status status-stopped">Stopped</div>
     </div>
 
+    <!-- MAIN BUTTONS -->
     <div class="controls">
       <button id="startBtn" class="btn-start">Start</button>
       <button id="pauseBtn" class="btn-pause" disabled>Pause</button>
@@ -314,6 +308,13 @@
       <button id="resetBtn" class="btn-reset" disabled>Reset</button>
     </div>
 
+    <!-- DEDUCTIONS BELOW STOP/RESET -->
+    <div class="deductions">
+      <label>Total Point Deductions</label>
+      <input id="deductionInput" type="number" min="0" value="0">
+    </div>
+
+    <!-- ADJUSTMENTS -->
     <div class="adjustments">
       <button class="negative" data-adjust="-30">-30s</button>
       <button class="negative" data-adjust="-10">-10s</button>
@@ -323,83 +324,74 @@
       <button class="positive" data-adjust="30">+30s</button>
     </div>
 
+    <!-- DRIVER + SAVE -->
     <div class="driver-section">
-      <label for="driverName">
+      <label>
         <span>Driver's Name</span>
-        <input id="driverName" type="text" placeholder="Enter driver name" />
-      </label>
-      <label for="truckName">
-        <span>Truck Name</span>
-        <input id="truckName" type="text" placeholder="Enter truck name" />
+        <input id="driverName" type="text" placeholder="Enter name">
       </label>
       <button id="saveBtn" class="btn-save">Save Snapshot</button>
     </div>
 
-    
   </div>
 
-  <!-- html2canvas for screenshot capture -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <script>
-    // --- Timer state ---
     let elapsedMs = 0;
     let running = false;
     let intervalId = null;
     let currentState = 'stopped';
+    let currentPhotoUrl = null;
 
     const timeEl = document.getElementById('time');
     const statusEl = document.getElementById('status');
+
     const startBtn = document.getElementById('startBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn = document.getElementById('stopBtn');
     const resetBtn = document.getElementById('resetBtn');
+
     const adjustmentButtons = document.querySelectorAll('.adjustments button');
     const adjustFlashEl = document.getElementById('adjustFlash');
+
     const driverNameInput = document.getElementById('driverName');
     const saveBtn = document.getElementById('saveBtn');
     const captureArea = document.getElementById('captureArea');
 
+    const photoBtn = document.getElementById('photoBtn');
+    const photoInput = document.getElementById('photoInput');
+    const photoPreview = document.getElementById('photoPreview');
+
     function formatTime(ms) {
-      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      const mm = String(minutes).padStart(2, '0');
-      const ss = String(seconds).padStart(2, '0');
-      return `${mm}:${ss}`;
+      const total = Math.floor(ms / 1000);
+      const m = String(Math.floor(total / 60)).padStart(2, '0');
+      const s = String(total % 60).padStart(2, '0');
+      return `${m}:${s}`;
     }
 
     function updateDisplay() {
       timeEl.textContent = formatTime(elapsedMs);
     }
 
-    function setStatus(status) {
-      currentState = status;
-      statusEl.classList.remove('status-running', 'status-paused', 'status-stopped');
-      if (status === 'running') {
-        statusEl.textContent = 'Running';
-        statusEl.classList.add('status-running');
-      } else if (status === 'paused') {
-        statusEl.textContent = 'Paused';
-        statusEl.classList.add('status-paused');
-      } else {
-        statusEl.textContent = 'Stopped';
-        statusEl.classList.add('status-stopped');
-      }
+    function setStatus(state) {
+      currentState = state;
+      statusEl.className = "status status-" + state;
+      statusEl.textContent = state.charAt(0).toUpperCase() + state.slice(1);
     }
 
-    function setButtonsForState(state) {
-      if (state === 'running') {
+    function setButtons(state) {
+      if (state === "running") {
         startBtn.disabled = true;
         pauseBtn.disabled = false;
         stopBtn.disabled = false;
         resetBtn.disabled = false;
-      } else if (state === 'paused') {
+      } else if (state === "paused") {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
         stopBtn.disabled = false;
         resetBtn.disabled = false;
-      } else { // stopped
+      } else {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
         stopBtn.disabled = elapsedMs <= 0;
@@ -410,136 +402,114 @@
     function startTimer() {
       if (running) return;
       running = true;
-
-      const tick = () => {
+      intervalId = setInterval(() => {
         elapsedMs += 100;
         updateDisplay();
-      };
-
-      intervalId = setInterval(tick, 100);
-      setStatus('running');
-      setButtonsForState('running');
+      }, 100);
+      setStatus("running");
+      setButtons("running");
     }
 
     function pauseTimer() {
       if (!running) return;
       running = false;
       clearInterval(intervalId);
-      intervalId = null;
-      setStatus('paused');
-      setButtonsForState('paused');
+      setStatus("paused");
+      setButtons("paused");
     }
 
     function stopTimer() {
       if (!running && elapsedMs <= 0) return;
       running = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-      setStatus('stopped'); // keep current time
-      setButtonsForState('stopped');
+      clearInterval(intervalId);
+      setStatus("stopped");
+      setButtons("stopped");
     }
 
     function resetTimer() {
       running = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
+      clearInterval(intervalId);
       elapsedMs = 0;
       updateDisplay();
-      setStatus('stopped');
-      setButtonsForState('stopped');
+      setStatus("stopped");
+      setButtons("stopped");
     }
 
-    function showAdjustmentFlash(seconds) {
-      const sign = seconds > 0 ? '+' : '';
-      adjustFlashEl.textContent = `${sign}${seconds}s`;
+    function showFlash(sec) {
+      const sign = sec > 0 ? "+" : "";
+      adjustFlashEl.textContent = `${sign}${sec}s`;
+
       adjustFlashEl.classList.remove('show-positive', 'show-negative');
-      adjustFlashEl.classList.add(seconds >= 0 ? 'show-positive' : 'show-negative');
+      adjustFlashEl.classList.add(sec >= 0 ? 'show-positive' : 'show-negative');
 
       adjustFlashEl.classList.remove('show');
-      void adjustFlashEl.offsetWidth; // restart animation
+      void adjustFlashEl.offsetWidth;
       adjustFlashEl.classList.add('show');
 
-      setTimeout(() => {
-  adjustFlashEl.classList.remove('show');
-}, 1000);  // show for 0.9s instead of 0.35s
+      setTimeout(() => adjustFlashEl.classList.remove('show'), 900);
     }
 
-    function adjustTime(seconds) {
-      elapsedMs += seconds * 1000;
-      if (elapsedMs < 0) elapsedMs = 0;
+    function adjustTime(sec) {
+      elapsedMs = Math.max(0, elapsedMs + sec * 1000);
       updateDisplay();
-      showAdjustmentFlash(seconds);
-      setButtonsForState(currentState);
+      showFlash(sec);
+      setButtons(currentState);
     }
 
+    // PHOTO HANDLING
+    photoBtn.onclick = () => photoInput.click();
+    photoPreview.onclick = () => photoInput.click();
+
+    photoInput.onchange = () => {
+      const file = photoInput.files && photoInput.files[0];
+      if (!file) return;
+
+      if (currentPhotoUrl) URL.revokeObjectURL(currentPhotoUrl);
+
+      currentPhotoUrl = URL.createObjectURL(file);
+      photoPreview.src = currentPhotoUrl;
+      photoPreview.style.display = "block";
+      photoBtn.style.display = "none";
+    };
+
+    // SAVE SNAPSHOT
     async function saveSnapshot() {
-  if (!window.html2canvas) {
-    alert('Screenshot library failed to load. Please check your internet connection.');
-    return;
-  }
+      const name = driverNameInput.value.trim();
+      const now = new Date();
 
-  const driverName = driverNameInput.value.trim();
+      const timestamp =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, '0') + "-" +
+        String(now.getDate()).padStart(2, '0') + "_" +
+        String(now.getHours()).padStart(2, '0') + "-" +
+        String(now.getMinutes()).padStart(2, '0') + "-" +
+        String(now.getSeconds()).padStart(2, '0');
 
-  // Create timestamp
-  const now = new Date();
-  const timestamp =
-    now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, '0') + "-" +
-    String(now.getDate()).padStart(2, '0') + "_" +
-    String(now.getHours()).padStart(2, '0') + "-" +
-    String(now.getMinutes()).padStart(2, '0') + "-" +
-    String(now.getSeconds()).padStart(2, '0');
+      const canvas = await html2canvas(captureArea);
+      const data = canvas.toDataURL("image/png");
 
-  try {
-    const canvas = await html2canvas(captureArea, {
-      backgroundColor: null,
-      scale: window.devicePixelRatio || 1
-    });
-    const dataUrl = canvas.toDataURL('image/png');
-
-    const link = document.createElement('a');
-    link.href = dataUrl;
-
-    // Build filename
-    if (driverName) {
-      link.download = `time-attack-${driverName.replace(/\s+/g, '_')}-${timestamp}.png`;
-    } else {
-      link.download = `time-attack-${timestamp}.png`;
+      const a = document.createElement("a");
+      a.href = data;
+      a.download = name
+        ? `time-attack-${name.replace(/\s+/g, "_")}-${timestamp}.png`
+        : `time-attack-${timestamp}.png`;
+      a.click();
     }
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    saveBtn.onclick = saveSnapshot;
 
-  } catch (err) {
-    console.error(err);
-    alert('Sorry, something went wrong while creating the snapshot.');
-  }
-}
-
-
-    // --- Event listeners ---
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    stopBtn.addEventListener('click', stopTimer);
-    resetBtn.addEventListener('click', resetTimer);
+    /* EVENTS */
+    startBtn.onclick = startTimer;
+    pauseBtn.onclick = pauseTimer;
+    stopBtn.onclick = stopTimer;
+    resetBtn.onclick = resetTimer;
 
     adjustmentButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const seconds = parseInt(btn.dataset.adjust, 10);
-        adjustTime(seconds);
-      });
+      btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
     });
 
-    saveBtn.addEventListener('click', saveSnapshot);
-
-    // Initialize
     updateDisplay();
-    setButtonsForState('stopped');
+    setButtons("stopped");
   </script>
 </body>
 </html>

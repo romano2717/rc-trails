@@ -121,6 +121,7 @@
       min-width: 9ch;
     }
 
+    /* FLASH */
     .adjust-flash {
       position: absolute;
       left: 50%;
@@ -139,14 +140,10 @@
       transform: translate(-50%, -90%) scale(1.15);
     }
 
-    .adjust-flash.show-positive {
-      color: #4ade80;
-    }
+    .adjust-flash.show-positive { color: #4ade80; }
+    .adjust-flash.show-negative { color: #fca5a5; }
 
-    .adjust-flash.show-negative {
-      color: #fca5a5;
-    }
-
+    /* STATUS */
     .status {
       margin-top: 0.4rem;
       font-size: 0.75rem;
@@ -154,7 +151,6 @@
       letter-spacing: 0.2em;
       opacity: 0.7;
     }
-
     .status-running { color: #4ade80; }
     .status-paused  { color: #fbbf24; }
     .status-stopped { color: #94a3b8; }
@@ -164,7 +160,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
     }
 
     .controls button,
@@ -189,67 +185,48 @@
     .btn-stop  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
     .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
 
-    /* DEDUCTIONS */
-    .deductions {
-      margin: 0.7rem 0 1.0rem 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      padding: 0 0.2rem;
-    }
-
-    .deductions label {
-      font-size: 0.7rem;
+    /* DEDUCTIONS (COMPACT TEXT LINE) */
+    .deductions-line {
+      margin: 0.25rem 0 0.9rem 0;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fbbf24;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: #cbd5e1;
-      letter-spacing: 0.1em;
     }
 
-    .deductions input {
-      padding: 0.5rem 0.6rem;
-      border-radius: 0.6rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: #0f172a;
-      color: #e5e7eb;
-      font-size: 1rem;
-    }
-
+    /* ADJUST */
     .adjustments {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
-
     .adjustments button.negative {
-      border: 1px solid rgba(248, 113, 113, 0.7);
+      border: 1px solid rgba(248,113,113,0.7);
     }
-
     .adjustments button.positive {
-      border: 1px solid rgba(52, 211, 153, 0.7);
+      border: 1px solid rgba(52,211,153,0.7);
     }
 
     /* DRIVER + SAVE */
     .driver-section {
       display: flex;
       gap: 0.5rem;
-      align-items: center;
       margin-bottom: 0.9rem;
     }
-
     .driver-section label {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
     }
-
     .driver-section span {
-      text-transform: uppercase;
       font-size: 0.65rem;
       letter-spacing: 0.15em;
+      text-transform: uppercase;
     }
-
     .driver-section input {
       padding: 0.5rem 0.6rem;
       border-radius: 0.6rem;
@@ -281,9 +258,9 @@
     </div>
 
     <div class="logos">
-      <img src="rcx-cafe-logo.jpg">
+      <img src="rcx-cafe-logo.png">
       <img src="southside-rc-logo.png">
-      <img src="crawl-me-maybe-logo.jpg">
+      <img src="crawl-me-maybe-logo.png">
     </div>
 
     <!-- PHOTO -->
@@ -308,20 +285,19 @@
       <button id="resetBtn" class="btn-reset" disabled>Reset</button>
     </div>
 
-    <!-- DEDUCTIONS BELOW STOP/RESET -->
-    <div class="deductions">
-      <label>Total Point Deductions</label>
-      <input id="deductionInput" type="number" min="0" value="0">
+    <!-- TOTAL DEDUCTIONS (AUTO ADD) -->
+    <div id="deductionsText" class="deductions-line">
+      Total Deductions: 0 points
     </div>
 
-    <!-- ADJUSTMENTS -->
+    <!-- ADJUST BUTTONS -->
     <div class="adjustments">
-      <button class="negative" data-adjust="-30">-30s</button>
-      <button class="negative" data-adjust="-10">-10s</button>
-      <button class="negative" data-adjust="-5">-5s</button>
-      <button class="positive" data-adjust="5">+5s</button>
-      <button class="positive" data-adjust="10">+10s</button>
-      <button class="positive" data-adjust="30">+30s</button>
+      <button class="negative" data-adjust="-30">-30</button>
+      <button class="negative" data-adjust="-10">-10</button>
+      <button class="negative" data-adjust="-5">-5</button>
+      <button class="positive" data-adjust="5">+5</button>
+      <button class="positive" data-adjust="10">+10</button>
+      <button class="positive" data-adjust="30">+30</button>
     </div>
 
     <!-- DRIVER + SAVE -->
@@ -330,9 +306,8 @@
         <span>Driver's Name</span>
         <input id="driverName" type="text" placeholder="Enter name">
       </label>
-      <button id="saveBtn" class="btn-save">Save Snapshot</button>
+      <button id="saveBtn" class="btn-save">Save</button>
     </div>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -341,37 +316,24 @@
     let elapsedMs = 0;
     let running = false;
     let intervalId = null;
-    let currentState = 'stopped';
-    let currentPhotoUrl = null;
+    let currentState = "stopped";
 
-    const timeEl = document.getElementById('time');
-    const statusEl = document.getElementById('status');
+    let totalDeductions = 0;
 
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const resetBtn = document.getElementById('resetBtn');
+    const timeEl = document.getElementById("time");
+    const statusEl = document.getElementById("status");
 
-    const adjustmentButtons = document.querySelectorAll('.adjustments button');
-    const adjustFlashEl = document.getElementById('adjustFlash');
+    const photoBtn = document.getElementById("photoBtn");
+    const photoInput = document.getElementById("photoInput");
+    const photoPreview = document.getElementById("photoPreview");
 
-    const driverNameInput = document.getElementById('driverName');
-    const saveBtn = document.getElementById('saveBtn');
-    const captureArea = document.getElementById('captureArea');
-
-    const photoBtn = document.getElementById('photoBtn');
-    const photoInput = document.getElementById('photoInput');
-    const photoPreview = document.getElementById('photoPreview');
-
-    function formatTime(ms) {
-      const total = Math.floor(ms / 1000);
-      const m = String(Math.floor(total / 60)).padStart(2, '0');
-      const s = String(total % 60).padStart(2, '0');
-      return `${m}:${s}`;
-    }
+    const deductionsText = document.getElementById("deductionsText");
 
     function updateDisplay() {
-      timeEl.textContent = formatTime(elapsedMs);
+      const total = Math.floor(elapsedMs / 1000);
+      const m = String(Math.floor(total / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      timeEl.textContent = `${m}:${s}`;
     }
 
     function setStatus(state) {
@@ -381,22 +343,10 @@
     }
 
     function setButtons(state) {
-      if (state === "running") {
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        stopBtn.disabled = false;
-        resetBtn.disabled = false;
-      } else if (state === "paused") {
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = false;
-        resetBtn.disabled = false;
-      } else {
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = elapsedMs <= 0;
-        resetBtn.disabled = elapsedMs <= 0;
-      }
+      startBtn.disabled = state === "running";
+      pauseBtn.disabled = state !== "running";
+      stopBtn.disabled = elapsedMs <= 0;
+      resetBtn.disabled = elapsedMs <= 0;
     }
 
     function startTimer() {
@@ -411,7 +361,6 @@
     }
 
     function pauseTimer() {
-      if (!running) return;
       running = false;
       clearInterval(intervalId);
       setStatus("paused");
@@ -419,7 +368,6 @@
     }
 
     function stopTimer() {
-      if (!running && elapsedMs <= 0) return;
       running = false;
       clearInterval(intervalId);
       setStatus("stopped");
@@ -436,75 +384,81 @@
     }
 
     function showFlash(sec) {
+      const flash = document.getElementById("adjustFlash");
       const sign = sec > 0 ? "+" : "";
-      adjustFlashEl.textContent = `${sign}${sec}s`;
+      flash.textContent = `${sign}${sec}`;
 
-      adjustFlashEl.classList.remove('show-positive', 'show-negative');
-      adjustFlashEl.classList.add(sec >= 0 ? 'show-positive' : 'show-negative');
+      flash.classList.remove("show-positive", "show-negative");
+      flash.classList.add(sec >= 0 ? "show-positive" : "show-negative");
 
-      adjustFlashEl.classList.remove('show');
-      void adjustFlashEl.offsetWidth;
-      adjustFlashEl.classList.add('show');
+      flash.classList.remove("show");
+      void flash.offsetWidth;
+      flash.classList.add("show");
 
-      setTimeout(() => adjustFlashEl.classList.remove('show'), 900);
+      setTimeout(() => flash.classList.remove("show"), 900);
     }
 
     function adjustTime(sec) {
       elapsedMs = Math.max(0, elapsedMs + sec * 1000);
       updateDisplay();
       showFlash(sec);
+
+      // UPDATE DEDUCTIONS AUTO
+      totalDeductions += sec;
+      deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
+
       setButtons(currentState);
     }
 
-    // PHOTO HANDLING
+    // PHOTO
     photoBtn.onclick = () => photoInput.click();
     photoPreview.onclick = () => photoInput.click();
 
     photoInput.onchange = () => {
-      const file = photoInput.files && photoInput.files[0];
+      const file = photoInput.files[0];
       if (!file) return;
 
-      if (currentPhotoUrl) URL.revokeObjectURL(currentPhotoUrl);
-
-      currentPhotoUrl = URL.createObjectURL(file);
-      photoPreview.src = currentPhotoUrl;
+      const url = URL.createObjectURL(file);
+      photoPreview.src = url;
       photoPreview.style.display = "block";
       photoBtn.style.display = "none";
     };
 
     // SAVE SNAPSHOT
     async function saveSnapshot() {
-      const name = driverNameInput.value.trim();
-      const now = new Date();
+      const name = driverName.value.trim();
 
-      const timestamp =
+      const now = new Date();
+      const ts =
         now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, '0') + "-" +
-        String(now.getDate()).padStart(2, '0') + "_" +
-        String(now.getHours()).padStart(2, '0') + "-" +
-        String(now.getMinutes()).padStart(2, '0') + "-" +
-        String(now.getSeconds()).padStart(2, '0');
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0") + "_" +
+        String(now.getHours()).padStart(2, "0") + "-" +
+        String(now.getMinutes()).padStart(2, "0") + "-" +
+        String(now.getSeconds()).padStart(2, "0");
 
       const canvas = await html2canvas(captureArea);
-      const data = canvas.toDataURL("image/png");
+      const dataUrl = canvas.toDataURL("image/png");
 
       const a = document.createElement("a");
-      a.href = data;
-      a.download = name
-        ? `time-attack-${name.replace(/\s+/g, "_")}-${timestamp}.png`
-        : `time-attack-${timestamp}.png`;
+      a.href = dataUrl;
+      a.download =
+        name
+          ? `time-attack-${name.replace(/\s+/g, "_")}-${ts}.png`
+          : `time-attack-${ts}.png`;
       a.click();
     }
 
     saveBtn.onclick = saveSnapshot;
 
-    /* EVENTS */
+    // TIMER BUTTONS
     startBtn.onclick = startTimer;
     pauseBtn.onclick = pauseTimer;
     stopBtn.onclick = stopTimer;
     resetBtn.onclick = resetTimer;
 
-    adjustmentButtons.forEach(btn => {
+    // ADJUST BUTTONS
+    document.querySelectorAll(".adjustments button").forEach(btn => {
       btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
     });
 

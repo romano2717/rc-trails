@@ -23,6 +23,7 @@
     }
 
     .app {
+      position: relative;
       background: rgba(15, 23, 42, 0.95);
       padding: 1.75rem;
       border-radius: 1.25rem;
@@ -32,6 +33,24 @@
       border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
+    /* --- DNF STAMP --- */
+    #dnfStamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      font-size: 4rem;
+      font-weight: 900;
+      color: rgba(239, 68, 68, 0.85);
+      text-shadow: 0 0 15px rgba(0,0,0,0.8);
+      letter-spacing: 0.2em;
+      display: none;
+      pointer-events: none;
+      user-select: none;
+      z-index: 999;
+    }
+
+    /* HEADER */
     .app-header {
       display: flex;
       align-items: center;
@@ -42,33 +61,28 @@
     .title {
       font-size: 1.4rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
       text-transform: uppercase;
     }
 
     .badge {
       font-size: 0.68rem;
-      text-transform: uppercase;
       padding: 0.2rem 0.55rem;
       border-radius: 999px;
       border: 1px solid rgba(251, 191, 36, 0.7);
       color: #facc15;
     }
 
+    /* LOGOS */
     .logos {
       display: flex;
       justify-content: center;
-      align-items: center;
       gap: 0.6rem;
       margin-bottom: 0.9rem;
-      flex-wrap: wrap;
     }
 
     .logos img {
       max-height: 52px;
-      width: auto;
       object-fit: contain;
-      opacity: 0.95;
     }
 
     /* PHOTO */
@@ -82,14 +96,10 @@
       padding: 0.6rem 1.2rem;
       border-radius: 999px;
       border: none;
-      font-size: 0.9rem;
       font-weight: 600;
-      cursor: pointer;
       background: linear-gradient(135deg, #38bdf8, #0ea5e9);
       color: #0b1120;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
     }
 
     .photo-preview {
@@ -98,8 +108,7 @@
       border-radius: 0.9rem;
       object-fit: cover;
       border: 2px solid rgba(248, 250, 252, 0.7);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-      cursor: pointer;
+      display: none;
     }
 
     /* TIMER */
@@ -112,27 +121,23 @@
     .time {
       font-size: 3rem;
       font-weight: 700;
-      letter-spacing: 0.15em;
       padding: 0.9rem 1.2rem;
       border-radius: 0.9rem;
-      background: radial-gradient(circle at top, #0f172a, #020617);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      display: inline-block;
-      min-width: 9ch;
+      background: radial-gradient(circle, #0f172a, #020617);
+      border: 1px solid rgba(148,163,184,0.3);
     }
 
     /* FLASH */
     .adjust-flash {
       position: absolute;
-      left: 50%;
       top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      pointer-events: none;
       font-weight: 900;
       font-size: 2.4rem;
       opacity: 0;
       transition: opacity 0.35s ease, transform 0.35s ease;
-      text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 0 14px rgba(0,0,0,0.9);
     }
 
     .adjust-flash.show {
@@ -143,67 +148,69 @@
     .adjust-flash.show-positive { color: #4ade80; }
     .adjust-flash.show-negative { color: #fca5a5; }
 
+    /* ATTEMPT STATE */
     .status {
-      margin-top: 0.4rem;
       font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
       opacity: 0.7;
+      margin-top: 0.4rem;
     }
 
+    .status-running { color: #4ade80; }
+    .status-paused { color: #fbbf24; }
+    .status-stopped { color: #94a3b8; }
+
+    /* BUTTONS */
     .controls {
       display: flex;
-      flex-wrap: wrap;
       gap: 0.6rem;
       margin-bottom: 0.3rem;
     }
 
-    .controls button,
-    .adjustments button {
-      flex: 1 1 calc(50% - 0.6rem);
-      padding: 0.9rem 1rem;
+    .controls button {
+      flex: 1;
+      padding: 0.9rem;
       border-radius: 999px;
-      border: none;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      background: #111827;
-      color: #e5e7eb;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      min-height: 52px;
     }
 
-    .btn-start { background: linear-gradient(135deg, #22c55e, #16a34a); }
-    .btn-pause { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .btn-stop  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-    .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
+    .btn-start { background: #16a34a; }
+    .btn-pause { background: #ea580c; }
+    .btn-stop { background: #b91c1c; }
+    .btn-reset { background: #475569; }
 
-    /* DEDUCTIONS TEXT */
+    /* DEDUCTIONS */
     .deductions-line {
-      margin: 0.25rem 0 0.9rem 0;
       text-align: center;
       font-size: 0.9rem;
-      font-weight: 600;
+      margin: 0.3rem 0 1rem 0;
       color: #fbbf24;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      font-weight: 700;
     }
 
-    /* ADJUST */
+    /* ADJUSTMENT BUTTONS */
     .adjustments {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
 
-    .adjustments button.negative {
-      border: 1px solid rgba(248,113,113,0.7);
+    .adjustments button {
+      padding: 0.7rem;
+      font-weight: 700;
+      border-radius: 0.6rem;
     }
-    .adjustments button.positive {
-      border: 1px solid rgba(52,211,153,0.7);
+
+    .negative { border: 1px solid #f87171; }
+    .positive { border: 1px solid #34d399; }
+
+    .btn-dnf {
+      background: #dc2626;
+      color: white;
+      border: 1px solid #7f1d1d;
     }
 
     /* DRIVER + SAVE */
@@ -219,37 +226,20 @@
       flex-direction: column;
     }
 
-    .driver-section span {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
-
-    .driver-section input {
-      padding: 0.5rem 0.6rem;
-      border-radius: 0.6rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 1rem;
-    }
-
     .btn-save {
-      flex-basis: 40%;
-      padding: 0.7rem;
-      border-radius: 0.9rem;
-      border: none;
-      background: linear-gradient(135deg, #eab308, #f97316);
+      background: #f59e0b;
       color: #0b1120;
+      padding: 0.6rem;
+      border-radius: 0.7rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      min-height: 52px;
     }
   </style>
 </head>
+
 <body>
   <div class="app" id="captureArea">
+
+    <div id="dnfStamp">DNF</div>
 
     <div class="app-header">
       <div class="title">Time Attack</div>
@@ -265,7 +255,7 @@
     <!-- PHOTO -->
     <div class="photo-section">
       <button id="photoBtn" class="btn-photo">Take Photo</button>
-      <img id="photoPreview" class="photo-preview" style="display:none;">
+      <img id="photoPreview" class="photo-preview">
       <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;">
     </div>
 
@@ -276,7 +266,7 @@
       <div id="status" class="status status-stopped">Stopped</div>
     </div>
 
-    <!-- MAIN BUTTONS -->
+    <!-- BUTTONS -->
     <div class="controls">
       <button id="startBtn" class="btn-start">Start</button>
       <button id="pauseBtn" class="btn-pause" disabled>Pause</button>
@@ -284,26 +274,29 @@
       <button id="resetBtn" class="btn-reset" disabled>Reset</button>
     </div>
 
-    <!-- AUTO DEDUCTIONS -->
+    <!-- DEDUCTIONS -->
     <div id="deductionsText" class="deductions-line">
       Total Deductions: 0 points
     </div>
 
-    <!-- ADJUSTMENT BUTTONS -->
+    <!-- ADJUSTMENT BUTTONS (NOW WITH DNF BUTTON) -->
     <div class="adjustments">
-     <!-- <button class="negative" data-adjust="-30">-30</button>
+      <button class="negative" data-adjust="-30">-30</button>
       <button class="negative" data-adjust="-10">-10</button>
-      <button class="negative" data-adjust="-5">-5</button>-->
+      <button class="negative" data-adjust="-5">-5</button>
       <button class="positive" data-adjust="5">+5</button>
       <button class="positive" data-adjust="10">+10</button>
       <button class="positive" data-adjust="30">+30</button>
+
+      <!-- NEW DNF BUTTON -->
+      <button id="dnfBtn" class="btn-dnf">DNF</button>
     </div>
 
-    <!-- DRIVER + SAVE -->
+    <!-- DRIVER -->
     <div class="driver-section">
       <label>
         <span>Driver's Name</span>
-        <input id="driverName" type="text" placeholder="Enter name">
+        <input id="driverName" type="text">
       </label>
       <button id="saveBtn" class="btn-save">Save</button>
     </div>
@@ -318,96 +311,74 @@
     let intervalId = null;
     let totalDeductions = 0;
 
-    const timeEl = document.getElementById("time");
-    const statusEl = document.getElementById("status");
-    const deductionsText = document.getElementById("deductionsText");
+    const dnfStamp = document.getElementById("dnfStamp");
 
-    /* TIMER UPDATE */
     function updateDisplay() {
-      const total = Math.floor(elapsedMs / 1000);
-      const m = String(Math.floor(total / 60)).padStart(2, "0");
-      const s = String(total % 60).padStart(2, "0");
-      timeEl.textContent = `${m}:${s}`;
+      const s = Math.floor(elapsedMs / 1000);
+      const m = String(Math.floor(s / 60)).padStart(2, "0");
+      const sec = String(s % 60).padStart(2, "0");
+      time.textContent = `${m}:${sec}`;
     }
 
-    function setStatus(state) {
-      statusEl.textContent = state.charAt(0).toUpperCase() + state.slice(1);
-      statusEl.className = "status status-" + state;
+    function stopAll() {
+      running = false;
+      clearInterval(intervalId);
+      status.textContent = "Stopped";
+      status.className = "status status-stopped";
     }
 
-    function setButtons(state) {
-      startBtn.disabled = state === "running";
-      pauseBtn.disabled = state !== "running";
-      stopBtn.disabled = elapsedMs <= 0;
-      resetBtn.disabled = elapsedMs <= 0;
+    function resetAll() {
+      stopAll();
+      elapsedMs = 0;
+      totalDeductions = 0;
+      dnfStamp.style.display = "none";
+      updateDisplay();
+      deductionsText.textContent = "Total Deductions: 0 points";
     }
 
-    /* TIMER BUTTONS */
-    function startTimer() {
+    // TIMER BUTTONS
+    startBtn.onclick = () => {
       if (running) return;
       running = true;
-      intervalId = setInterval(() => { elapsedMs += 100; updateDisplay(); }, 100);
-      setStatus("running");
-      setButtons("running");
-    }
+      status.textContent = "Running";
+      status.className = "status status-running";
 
-    function pauseTimer() {
+      intervalId = setInterval(() => {
+        elapsedMs += 100;
+        updateDisplay();
+      }, 100);
+    };
+
+    pauseBtn.onclick = () => {
       running = false;
       clearInterval(intervalId);
-      setStatus("paused");
-      setButtons("paused");
-    }
+      status.textContent = "Paused";
+      status.className = "status status-paused";
+    };
 
-    function stopTimer() {
-      running = false;
-      clearInterval(intervalId);
-      setStatus("stopped");
-      setButtons("stopped");
-    }
+    stopBtn.onclick = stopAll;
+    resetBtn.onclick = resetAll;
 
-    function resetTimer() {
-      running = false;
-      clearInterval(intervalId);
-      elapsedMs = 0;
+    // ADJUST
+    document.querySelectorAll(".adjustments button").forEach(btn => {
+      if (!btn.dataset.adjust) return;
 
-      /* RESET DEDUCTIONS TOO */
-      totalDeductions = 0;
-      deductionsText.textContent = `Total Deductions: 0 points`;
+      btn.onclick = () => {
+        const val = parseInt(btn.dataset.adjust, 10);
+        elapsedMs = Math.max(0, elapsedMs + val * 1000);
+        totalDeductions += val;
+        updateDisplay();
+        deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
+      };
+    });
 
-      updateDisplay();
-      setStatus("stopped");
-      setButtons("stopped");
-    }
+    // --- DNF BUTTON ---
+    dnfBtn.onclick = () => {
+      stopAll();
+      dnfStamp.style.display = "block";
+    };
 
-    /* FLASH */
-    function showFlash(sec) {
-      const flash = document.getElementById("adjustFlash");
-      const sign = sec > 0 ? "+" : "";
-      flash.textContent = `${sign}${sec}`;
-
-      flash.classList.remove("show-positive", "show-negative");
-      flash.classList.add(sec >= 0 ? "show-positive" : "show-negative");
-
-      flash.classList.remove("show");
-      void flash.offsetWidth;
-      flash.classList.add("show");
-
-      setTimeout(() => flash.classList.remove("show"), 900);
-    }
-
-    /* TIME + DEDUCTIONS UPDATE */
-    function adjustTime(sec) {
-      elapsedMs = Math.max(0, elapsedMs + sec * 1000);
-      updateDisplay();
-      showFlash(sec);
-
-      totalDeductions += sec;
-      deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
-
-      setButtons("stopped");
-    }
-
-    /* PHOTO */
+    // PHOTO
     photoBtn.onclick = () => photoInput.click();
     photoPreview.onclick = () => photoInput.click();
 
@@ -420,43 +391,20 @@
       photoBtn.style.display = "none";
     };
 
-    /* SAVE SNAPSHOT */
-    async function saveSnapshot() {
-      const name = driverName.value.trim();
-      const now = new Date();
-      const ts =
-        now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0") + "_" +
-        String(now.getHours()).padStart(2, "0") + "-" +
-        String(now.getMinutes()).padStart(2, "0") + "-" +
-        String(now.getSeconds()).padStart(2, "0");
+    // SAVE SNAPSHOT
+    saveBtn.onclick = async () => {
+      const canvas = await html2canvas(document.getElementById("captureArea"));
+      const url = canvas.toDataURL("image/png");
 
-      const canvas = await html2canvas(captureArea);
-      const dataUrl = canvas.toDataURL("image/png");
+      const now = new Date();
+      const ts = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+      const name = driverName.value.trim().replace(/\s+/g, "_") || "run";
 
       const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = name
-        ? `time-attack-${name.replace(/\s+/g, "_")}-${ts}.png`
-        : `time-attack-${ts}.png`;
+      a.href = url;
+      a.download = `time-attack-${name}-${ts}.png`;
       a.click();
-    }
-
-    saveBtn.onclick = saveSnapshot;
-
-    /* BUTTON EVENTS */
-    startBtn.onclick = startTimer;
-    pauseBtn.onclick = pauseTimer;
-    stopBtn.onclick = stopTimer;
-    resetBtn.onclick = resetTimer;
-
-    document.querySelectorAll(".adjustments button").forEach(btn => {
-      btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
-    });
-
-    updateDisplay();
-    setButtons("stopped");
+    };
   </script>
 </body>
 </html>

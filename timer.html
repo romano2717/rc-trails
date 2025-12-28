@@ -27,7 +27,7 @@
       border-radius: 1.25rem;
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
@@ -57,18 +57,45 @@
     .timer-display {
       text-align: center;
       margin-bottom: 1.25rem;
+      position: relative;
     }
 
     .time {
       font-size: 3rem;
       font-weight: 700;
       letter-spacing: 0.15em;
-      padding: 0.7rem 1rem;
+      padding: 0.9rem 1.2rem;
       border-radius: 0.9rem;
       background: radial-gradient(circle at top, #0f172a, #020617);
       border: 1px solid rgba(148, 163, 184, 0.3);
       display: inline-block;
       min-width: 9ch;
+    }
+
+    .adjust-flash {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-weight: 700;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+    }
+
+    .adjust-flash.show {
+      opacity: 1;
+      transform: translate(-50%, -80%);
+    }
+
+    .adjust-flash.show-positive {
+      color: #4ade80;
+    }
+
+    .adjust-flash.show-negative {
+      color: #fca5a5;
     }
 
     .status {
@@ -93,30 +120,33 @@
 
     .controls {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
     }
 
     .controls button,
     .adjustments button {
-      flex: 1;
-      padding: 0.55rem 0.7rem;
+      flex: 1 1 calc(50% - 0.6rem);
+      padding: 0.9rem 1rem;
       border-radius: 999px;
       border: none;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, opacity 0.1s ease;
       background: #111827;
       color: #e5e7eb;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
       text-transform: uppercase;
       letter-spacing: 0.09em;
+      min-height: 52px;
+      touch-action: manipulation;
     }
 
     .controls button:active,
     .adjustments button:active {
-      transform: translateY(1px) scale(0.99);
+      transform: translateY(1px) scale(0.98);
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
     }
 
@@ -139,17 +169,22 @@
       background: linear-gradient(135deg, #ef4444, #b91c1c);
     }
 
+    .btn-reset {
+      background: linear-gradient(135deg, #64748b, #475569);
+    }
+
     .adjustments {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.45rem;
+      gap: 0.5rem;
       margin-bottom: 1rem;
     }
 
     .adjustments button {
-      font-size: 0.8rem;
-      padding: 0.45rem 0.35rem;
+      font-size: 0.95rem;
+      padding: 0.7rem 0.5rem;
       letter-spacing: 0.08em;
+      min-height: 52px;
     }
 
     .adjustments button.negative {
@@ -182,12 +217,12 @@
     }
 
     .set-time input {
-      padding: 0.3rem 0.4rem;
+      padding: 0.4rem 0.5rem;
       border-radius: 0.6rem;
       border: 1px solid rgba(148, 163, 184, 0.5);
       background: #020617;
       color: #e5e7eb;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       outline: none;
       width: 100%;
     }
@@ -199,7 +234,7 @@
 
     .btn-set {
       flex-basis: 30%;
-      padding: 0.5rem 0.6rem;
+      padding: 0.7rem 0.7rem;
       border-radius: 0.9rem;
       border: none;
       background: linear-gradient(135deg, #38bdf8, #0ea5e9);
@@ -210,10 +245,11 @@
       text-transform: uppercase;
       letter-spacing: 0.12em;
       white-space: nowrap;
+      min-height: 52px;
     }
 
     .hint {
-      margin-top: 0.6rem;
+      margin-top: 0.7rem;
       font-size: 0.7rem;
       opacity: 0.7;
       text-align: center;
@@ -239,6 +275,7 @@
 
     <div class="timer-display">
       <div id="time" class="time">00:00</div>
+      <div id="adjustFlash" class="adjust-flash"></div>
       <div id="status" class="status status-stopped">Stopped</div>
     </div>
 
@@ -246,6 +283,7 @@
       <button id="startBtn" class="btn-start">Start</button>
       <button id="pauseBtn" class="btn-pause" disabled>Pause</button>
       <button id="stopBtn" class="btn-stop" disabled>Stop</button>
+      <button id="resetBtn" class="btn-reset" disabled>Reset</button>
     </div>
 
     <div class="adjustments">
@@ -270,149 +308,180 @@
     </div>
 
     <p class="hint">
-      Set your target time, hit <strong>Start</strong>, and tweak with ±5/10/30s on the fly.
+      Hit <strong>Start</strong> to count up, or set a starting time. Adjust with ±5/10/30s on the fly, then <strong>Stop</strong> or <strong>Reset</strong>.
     </p>
   </div>
 
   <script>
     // --- State ---
-    let remainingMs = 0;
-    
+    let elapsedMs = 0;
+    let running = false;
+    let intervalId = null;
+    let currentState = 'stopped';
 
-    // --- State ---
-let elapsedMs = 0;
-let running = false;
-let intervalId = null;
+    const timeEl = document.getElementById('time');
+    const statusEl = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const minutesInput = document.getElementById('minutesInput');
+    const secondsInput = document.getElementById('secondsInput');
+    const setBtn = document.getElementById('setBtn');
+    const adjustmentButtons = document.querySelectorAll('.adjustments button');
+    const adjustFlashEl = document.getElementById('adjustFlash');
 
-const timeEl = document.getElementById('time');
-const statusEl = document.getElementById('status');
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const stopBtn = document.getElementById('stopBtn');
-const minutesInput = document.getElementById('minutesInput');
-const secondsInput = document.getElementById('secondsInput');
-const setBtn = document.getElementById('setBtn');
-const adjustmentButtons = document.querySelectorAll('.adjustments button');
+    function formatTime(ms) {
+      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const mm = String(minutes).padStart(2, '0');
+      const ss = String(seconds).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
 
-function formatTime(ms) {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  const mm = String(minutes).padStart(2, '0');
-  const ss = String(seconds).padStart(2, '0');
-  return `${mm}:${ss}`;
-}
+    function updateDisplay() {
+      timeEl.textContent = formatTime(elapsedMs);
+    }
 
-function updateDisplay() {
-  timeEl.textContent = formatTime(elapsedMs);
-}
+    function setStatus(status) {
+      currentState = status;
+      statusEl.classList.remove('status-running', 'status-paused', 'status-stopped');
+      if (status === 'running') {
+        statusEl.textContent = 'Running';
+        statusEl.classList.add('status-running');
+      } else if (status === 'paused') {
+        statusEl.textContent = 'Paused';
+        statusEl.classList.add('status-paused');
+      } else {
+        statusEl.textContent = 'Stopped';
+        statusEl.classList.add('status-stopped');
+      }
+    }
 
-function setStatus(status) {
-  statusEl.classList.remove('status-running', 'status-paused', 'status-stopped');
-  if (status === 'running') {
-    statusEl.textContent = 'Running';
-    statusEl.classList.add('status-running');
-  } else if (status === 'paused') {
-    statusEl.textContent = 'Paused';
-    statusEl.classList.add('status-paused');
-  } else {
-    statusEl.textContent = 'Stopped';
-    statusEl.classList.add('status-stopped');
-  }
-}
+    function setButtonsForState(state) {
+      if (state === 'running') {
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+        resetBtn.disabled = false;
+      } else if (state === 'paused') {
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = false;
+        resetBtn.disabled = false;
+      } else { // stopped
+        startBtn.disabled = false;        // can start from 0 or current time
+        pauseBtn.disabled = true;
+        stopBtn.disabled = elapsedMs <= 0;
+        resetBtn.disabled = elapsedMs <= 0;
+      }
+    }
 
-function setButtonsForState(state) {
-  if (state === 'running') {
-    startBtn.disabled = true;
-    pauseBtn.disabled = false;
-    stopBtn.disabled = false;
-  } else if (state === 'paused') {
-    startBtn.disabled = false;
-    pauseBtn.disabled = true;
-    stopBtn.disabled = false;
-  } else {
-    // stopped
-    startBtn.disabled = false;  // allow starting from 0
-    pauseBtn.disabled = true;
-    stopBtn.disabled = elapsedMs <= 0;
-  }
-}
+    function startTimer() {
+      if (running) return;
+      running = true;
 
-function startTimer() {
-  if (running) return;
-  running = true;
+      const tick = () => {
+        elapsedMs += 100;
+        updateDisplay();
+      };
 
-  const tick = () => {
-    elapsedMs += 100;
+      intervalId = setInterval(tick, 100);
+      setStatus('running');
+      setButtonsForState('running');
+    }
+
+    function pauseTimer() {
+      if (!running) return;
+      running = false;
+      clearInterval(intervalId);
+      intervalId = null;
+      setStatus('paused');
+      setButtonsForState('paused');
+    }
+
+    function stopTimer() {
+      if (!running && elapsedMs <= 0) return;
+      running = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      setStatus('stopped');      // keep current time, just stop
+      setButtonsForState('stopped');
+    }
+
+    function resetTimer() {
+      running = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      elapsedMs = 0;
+      updateDisplay();
+      setStatus('stopped');
+      setButtonsForState('stopped');
+    }
+
+    function showAdjustmentFlash(seconds) {
+      const sign = seconds > 0 ? '+' : '';
+      adjustFlashEl.textContent = `${sign}${seconds}s`;
+      adjustFlashEl.classList.remove('show-positive', 'show-negative');
+      adjustFlashEl.classList.add(seconds >= 0 ? 'show-positive' : 'show-negative');
+
+      // Restart animation
+      adjustFlashEl.classList.remove('show');
+      void adjustFlashEl.offsetWidth; // force reflow
+      adjustFlashEl.classList.add('show');
+
+      // Hide after a short time
+      setTimeout(() => {
+        adjustFlashEl.classList.remove('show');
+      }, 350);
+    }
+
+    function adjustTime(seconds) {
+      elapsedMs += seconds * 1000;
+      if (elapsedMs < 0) elapsedMs = 0;
+      updateDisplay();
+      showAdjustmentFlash(seconds);
+      setButtonsForState(currentState);
+    }
+
+    function setCustomTime() {
+      const minutes = parseInt(minutesInput.value, 10) || 0;
+      const seconds = parseInt(secondsInput.value, 10) || 0;
+
+      const clampedMinutes = Math.max(0, Math.min(599, minutes));
+      const clampedSeconds = Math.max(0, Math.min(59, seconds));
+
+      const totalSeconds = clampedMinutes * 60 + clampedSeconds;
+      elapsedMs = totalSeconds * 1000;
+
+      updateDisplay();
+      setStatus('stopped');
+      setButtonsForState('stopped');
+    }
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    stopBtn.addEventListener('click', stopTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    adjustmentButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const seconds = parseInt(btn.dataset.adjust, 10);
+        adjustTime(seconds);
+      });
+    });
+
+    setBtn.addEventListener('click', setCustomTime);
+
+    // Initialize display
     updateDisplay();
-  };
-
-  intervalId = setInterval(tick, 100);
-  setStatus('running');
-  setButtonsForState('running');
-}
-
-function pauseTimer() {
-  if (!running) return;
-  running = false;
-  clearInterval(intervalId);
-  intervalId = null;
-  setStatus('paused');
-  setButtonsForState('paused');
-}
-
-function stopTimer() {
-  running = false;
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-  elapsedMs = 0;
-  updateDisplay();
-  setStatus('stopped');
-  setButtonsForState('stopped');
-}
-
-function adjustTime(seconds) {
-  elapsedMs += seconds * 1000;
-  if (elapsedMs < 0) elapsedMs = 0;
-  updateDisplay();
-  setButtonsForState(running ? 'running' : 'paused');
-}
-
-function setCustomTime() {
-  const minutes = parseInt(minutesInput.value, 10) || 0;
-  const seconds = parseInt(secondsInput.value, 10) || 0;
-
-  const clampedMinutes = Math.max(0, Math.min(599, minutes));
-  const clampedSeconds = Math.max(0, Math.min(59, seconds));
-
-  const totalSeconds = clampedMinutes * 60 + clampedSeconds;
-  elapsedMs = totalSeconds * 1000;
-
-  updateDisplay();
-  setStatus('stopped');
-  setButtonsForState('stopped');
-}
-
-// --- Event Listeners ---
-startBtn.addEventListener('click', startTimer);
-pauseBtn.addEventListener('click', pauseTimer);
-stopBtn.addEventListener('click', stopTimer);
-
-adjustmentButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const seconds = parseInt(btn.dataset.adjust, 10);
-    adjustTime(seconds);
-  });
-});
-
-setBtn.addEventListener('click', setCustomTime);
-
-// Initialize display
-updateDisplay();
-setButtonsForState('stopped');
-
+    setButtonsForState('stopped');
   </script>
 </body>
 </html>

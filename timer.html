@@ -279,159 +279,140 @@
     let remainingMs = 0;
     let intervalId = null;
 
-    const timeEl = document.getElementById('time');
-    const statusEl = document.getElementById('status');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const minutesInput = document.getElementById('minutesInput');
-    const secondsInput = document.getElementById('secondsInput');
-    const setBtn = document.getElementById('setBtn');
-    const adjustmentButtons = document.querySelectorAll('.adjustments button');
+    // --- State ---
+let elapsedMs = 0;
+let running = false;
+let intervalId = null;
 
-    function formatTime(ms) {
-      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      const mm = String(minutes).padStart(2, '0');
-      const ss = String(seconds).padStart(2, '0');
-      return `${mm}:${ss}`;
-    }
+const timeEl = document.getElementById('time');
+const statusEl = document.getElementById('status');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const minutesInput = document.getElementById('minutesInput');
+const secondsInput = document.getElementById('secondsInput');
+const setBtn = document.getElementById('setBtn');
+const adjustmentButtons = document.querySelectorAll('.adjustments button');
 
-    function updateDisplay() {
-      timeEl.textContent = formatTime(remainingMs);
-    }
+function formatTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
 
-    function setStatus(status) {
-      statusEl.classList.remove('status-running', 'status-paused', 'status-stopped');
-      if (status === 'running') {
-        statusEl.textContent = 'Running';
-        statusEl.classList.add('status-running');
-      } else if (status === 'paused') {
-        statusEl.textContent = 'Paused';
-        statusEl.classList.add('status-paused');
-      } else {
-        statusEl.textContent = 'Stopped';
-        statusEl.classList.add('status-stopped');
-      }
-    }
+function updateDisplay() {
+  timeEl.textContent = formatTime(elapsedMs);
+}
 
-    function setButtonsForState(state) {
-      if (state === 'running') {
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        stopBtn.disabled = false;
-      } else if (state === 'paused') {
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = false;
-      } else {
-        startBtn.disabled = remainingMs <= 0;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = remainingMs <= 0;
-      }
-    }
+function setStatus(status) {
+  statusEl.classList.remove('status-running', 'status-paused', 'status-stopped');
+  if (status === 'running') {
+    statusEl.textContent = 'Running';
+    statusEl.classList.add('status-running');
+  } else if (status === 'paused') {
+    statusEl.textContent = 'Paused';
+    statusEl.classList.add('status-paused');
+  } else {
+    statusEl.textContent = 'Stopped';
+    statusEl.classList.add('status-stopped');
+  }
+}
 
-    function startTimer() {
-      if (intervalId || remainingMs <= 0) return;
+function setButtonsForState(state) {
+  if (state === 'running') {
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+  } else if (state === 'paused') {
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = false;
+  } else {
+    // stopped
+    startBtn.disabled = false;  // allow starting from 0
+    pauseBtn.disabled = true;
+    stopBtn.disabled = elapsedMs <= 0;
+  }
+}
 
-      const tick = () => {
-        remainingMs -= 100;
-        if (remainingMs <= 0) {
-          remainingMs = 0;
-          clearInterval(intervalId);
-          intervalId = null;
-          updateDisplay();
-          setStatus('stopped');
-          setButtonsForState('stopped');
-          flashTimeUp();
-        } else {
-          updateDisplay();
-        }
-      };
+function startTimer() {
+  if (running) return;
+  running = true;
 
-      intervalId = setInterval(tick, 100);
-      setStatus('running');
-      setButtonsForState('running');
-    }
-
-    function pauseTimer() {
-      if (!intervalId) return;
-      clearInterval(intervalId);
-      intervalId = null;
-      setStatus('paused');
-      setButtonsForState('paused');
-    }
-
-    function stopTimer() {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-      remainingMs = 0;
-      updateDisplay();
-      setStatus('stopped');
-      setButtonsForState('stopped');
-    }
-
-    function adjustTime(seconds) {
-      remainingMs += seconds * 1000;
-      if (remainingMs < 0) remainingMs = 0;
-      updateDisplay();
-
-      // If we were "stopped" at 0 and user added time, enable start
-      if (!intervalId && remainingMs > 0 && statusEl.textContent === 'Stopped') {
-        setButtonsForState('stopped');
-      }
-    }
-
-    function setCustomTime() {
-      const minutes = parseInt(minutesInput.value, 10) || 0;
-      const seconds = parseInt(secondsInput.value, 10) || 0;
-
-      const clampedMinutes = Math.max(0, Math.min(599, minutes));
-      const clampedSeconds = Math.max(0, Math.min(59, seconds));
-
-      const totalSeconds = clampedMinutes * 60 + clampedSeconds;
-      remainingMs = totalSeconds * 1000;
-
-      updateDisplay();
-      if (remainingMs > 0) {
-        setStatus('stopped');
-        setButtonsForState('stopped');
-      } else {
-        stopTimer();
-      }
-    }
-
-    function flashTimeUp() {
-      timeEl.animate(
-        [
-          { transform: 'scale(1)', opacity: 1 },
-          { transform: 'scale(1.1)', opacity: 0.1 },
-          { transform: 'scale(1)', opacity: 1 }
-        ],
-        { duration: 600, iterations: 2 }
-      );
-    }
-
-    // --- Event Listeners ---
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    stopBtn.addEventListener('click', stopTimer);
-
-    adjustmentButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const seconds = parseInt(btn.dataset.adjust, 10);
-        adjustTime(seconds);
-      });
-    });
-
-    setBtn.addEventListener('click', setCustomTime);
-
-    // Initialize display
+  const tick = () => {
+    elapsedMs += 100;
     updateDisplay();
-    setButtonsForState('stopped');
+  };
+
+  intervalId = setInterval(tick, 100);
+  setStatus('running');
+  setButtonsForState('running');
+}
+
+function pauseTimer() {
+  if (!running) return;
+  running = false;
+  clearInterval(intervalId);
+  intervalId = null;
+  setStatus('paused');
+  setButtonsForState('paused');
+}
+
+function stopTimer() {
+  running = false;
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+  elapsedMs = 0;
+  updateDisplay();
+  setStatus('stopped');
+  setButtonsForState('stopped');
+}
+
+function adjustTime(seconds) {
+  elapsedMs += seconds * 1000;
+  if (elapsedMs < 0) elapsedMs = 0;
+  updateDisplay();
+  setButtonsForState(running ? 'running' : 'paused');
+}
+
+function setCustomTime() {
+  const minutes = parseInt(minutesInput.value, 10) || 0;
+  const seconds = parseInt(secondsInput.value, 10) || 0;
+
+  const clampedMinutes = Math.max(0, Math.min(599, minutes));
+  const clampedSeconds = Math.max(0, Math.min(59, seconds));
+
+  const totalSeconds = clampedMinutes * 60 + clampedSeconds;
+  elapsedMs = totalSeconds * 1000;
+
+  updateDisplay();
+  setStatus('stopped');
+  setButtonsForState('stopped');
+}
+
+// --- Event Listeners ---
+startBtn.addEventListener('click', startTimer);
+pauseBtn.addEventListener('click', pauseTimer);
+stopBtn.addEventListener('click', stopTimer);
+
+adjustmentButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const seconds = parseInt(btn.dataset.adjust, 10);
+    adjustTime(seconds);
+  });
+});
+
+setBtn.addEventListener('click', setCustomTime);
+
+// Initialize display
+updateDisplay();
+setButtonsForState('stopped');
+
   </script>
 </body>
 </html>

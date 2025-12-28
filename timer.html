@@ -475,32 +475,50 @@
     }
 
     async function saveSnapshot() {
-      if (!window.html2canvas) {
-        alert('Screenshot library failed to load. Please check your internet connection.');
-        return;
-      }
+  if (!window.html2canvas) {
+    alert('Screenshot library failed to load. Please check your internet connection.');
+    return;
+  }
 
-      const driverName = driverNameInput.value.trim();
+  const driverName = driverNameInput.value.trim();
 
-      try {
-        const canvas = await html2canvas(captureArea, {
-          backgroundColor: null,
-          scale: window.devicePixelRatio || 1
-        });
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = driverName
-          ? `time-attack-${driverName.replace(/\\s+/g, '_')}.png`
-          : 'time-attack-snapshot.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (err) {
-        console.error(err);
-        alert('Sorry, something went wrong while creating the snapshot.');
-      }
+  // Create timestamp
+  const now = new Date();
+  const timestamp =
+    now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, '0') + "-" +
+    String(now.getDate()).padStart(2, '0') + "_" +
+    String(now.getHours()).padStart(2, '0') + "-" +
+    String(now.getMinutes()).padStart(2, '0') + "-" +
+    String(now.getSeconds()).padStart(2, '0');
+
+  try {
+    const canvas = await html2canvas(captureArea, {
+      backgroundColor: null,
+      scale: window.devicePixelRatio || 1
+    });
+    const dataUrl = canvas.toDataURL('image/png');
+
+    const link = document.createElement('a');
+    link.href = dataUrl;
+
+    // Build filename
+    if (driverName) {
+      link.download = `time-attack-${driverName.replace(/\s+/g, '_')}-${timestamp}.png`;
+    } else {
+      link.download = `time-attack-${timestamp}.png`;
     }
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  } catch (err) {
+    console.error(err);
+    alert('Sorry, something went wrong while creating the snapshot.');
+  }
+}
+
 
     // --- Event listeners ---
     startBtn.addEventListener('click', startTimer);

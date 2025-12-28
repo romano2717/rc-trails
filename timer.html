@@ -143,7 +143,6 @@
     .adjust-flash.show-positive { color: #4ade80; }
     .adjust-flash.show-negative { color: #fca5a5; }
 
-    /* STATUS */
     .status {
       margin-top: 0.4rem;
       font-size: 0.75rem;
@@ -151,11 +150,7 @@
       letter-spacing: 0.2em;
       opacity: 0.7;
     }
-    .status-running { color: #4ade80; }
-    .status-paused  { color: #fbbf24; }
-    .status-stopped { color: #94a3b8; }
 
-    /* BUTTONS */
     .controls {
       display: flex;
       flex-wrap: wrap;
@@ -185,7 +180,7 @@
     .btn-stop  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
     .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
 
-    /* DEDUCTIONS (COMPACT TEXT LINE) */
+    /* DEDUCTIONS TEXT */
     .deductions-line {
       margin: 0.25rem 0 0.9rem 0;
       text-align: center;
@@ -203,6 +198,7 @@
       gap: 0.5rem;
       margin-bottom: 1rem;
     }
+
     .adjustments button.negative {
       border: 1px solid rgba(248,113,113,0.7);
     }
@@ -216,17 +212,19 @@
       gap: 0.5rem;
       margin-bottom: 0.9rem;
     }
+
     .driver-section label {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
     }
+
     .driver-section span {
       font-size: 0.65rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
     }
+
     .driver-section input {
       padding: 0.5rem 0.6rem;
       border-radius: 0.6rem;
@@ -252,6 +250,7 @@
 </head>
 <body>
   <div class="app" id="captureArea">
+
     <div class="app-header">
       <div class="title">Time Attack</div>
       <div class="badge">Challenge Mode</div>
@@ -259,7 +258,7 @@
 
     <div class="logos">
       <img src="rcx-cafe-logo.jpg">
-      <img src="southside-rc-logo.png">
+      <img src="southside-rc-logo.jpg">
       <img src="crawl-me-maybe-logo.jpg">
     </div>
 
@@ -285,12 +284,12 @@
       <button id="resetBtn" class="btn-reset" disabled>Reset</button>
     </div>
 
-    <!-- TOTAL DEDUCTIONS (AUTO ADD) -->
+    <!-- AUTO DEDUCTIONS -->
     <div id="deductionsText" class="deductions-line">
       Total Deductions: 0 points
     </div>
 
-    <!-- ADJUST BUTTONS -->
+    <!-- ADJUSTMENT BUTTONS -->
     <div class="adjustments">
       <button class="negative" data-adjust="-30">-30</button>
       <button class="negative" data-adjust="-10">-10</button>
@@ -308,6 +307,7 @@
       </label>
       <button id="saveBtn" class="btn-save">Save</button>
     </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -316,19 +316,13 @@
     let elapsedMs = 0;
     let running = false;
     let intervalId = null;
-    let currentState = "stopped";
-
     let totalDeductions = 0;
 
     const timeEl = document.getElementById("time");
     const statusEl = document.getElementById("status");
-
-    const photoBtn = document.getElementById("photoBtn");
-    const photoInput = document.getElementById("photoInput");
-    const photoPreview = document.getElementById("photoPreview");
-
     const deductionsText = document.getElementById("deductionsText");
 
+    /* TIMER UPDATE */
     function updateDisplay() {
       const total = Math.floor(elapsedMs / 1000);
       const m = String(Math.floor(total / 60)).padStart(2, "0");
@@ -337,9 +331,8 @@
     }
 
     function setStatus(state) {
-      currentState = state;
-      statusEl.className = "status status-" + state;
       statusEl.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+      statusEl.className = "status status-" + state;
     }
 
     function setButtons(state) {
@@ -349,13 +342,11 @@
       resetBtn.disabled = elapsedMs <= 0;
     }
 
+    /* TIMER BUTTONS */
     function startTimer() {
       if (running) return;
       running = true;
-      intervalId = setInterval(() => {
-        elapsedMs += 100;
-        updateDisplay();
-      }, 100);
+      intervalId = setInterval(() => { elapsedMs += 100; updateDisplay(); }, 100);
       setStatus("running");
       setButtons("running");
     }
@@ -378,11 +369,17 @@
       running = false;
       clearInterval(intervalId);
       elapsedMs = 0;
+
+      /* RESET DEDUCTIONS TOO */
+      totalDeductions = 0;
+      deductionsText.textContent = `Total Deductions: 0 points`;
+
       updateDisplay();
       setStatus("stopped");
       setButtons("stopped");
     }
 
+    /* FLASH */
     function showFlash(sec) {
       const flash = document.getElementById("adjustFlash");
       const sign = sec > 0 ? "+" : "";
@@ -398,36 +395,34 @@
       setTimeout(() => flash.classList.remove("show"), 900);
     }
 
+    /* TIME + DEDUCTIONS UPDATE */
     function adjustTime(sec) {
       elapsedMs = Math.max(0, elapsedMs + sec * 1000);
       updateDisplay();
       showFlash(sec);
 
-      // UPDATE DEDUCTIONS AUTO
       totalDeductions += sec;
       deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
 
-      setButtons(currentState);
+      setButtons("stopped");
     }
 
-    // PHOTO
+    /* PHOTO */
     photoBtn.onclick = () => photoInput.click();
     photoPreview.onclick = () => photoInput.click();
 
     photoInput.onchange = () => {
       const file = photoInput.files[0];
       if (!file) return;
-
       const url = URL.createObjectURL(file);
       photoPreview.src = url;
       photoPreview.style.display = "block";
       photoBtn.style.display = "none";
     };
 
-    // SAVE SNAPSHOT
+    /* SAVE SNAPSHOT */
     async function saveSnapshot() {
       const name = driverName.value.trim();
-
       const now = new Date();
       const ts =
         now.getFullYear() + "-" +
@@ -442,22 +437,20 @@
 
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download =
-        name
-          ? `time-attack-${name.replace(/\s+/g, "_")}-${ts}.png`
-          : `time-attack-${ts}.png`;
+      a.download = name
+        ? `time-attack-${name.replace(/\s+/g, "_")}-${ts}.png`
+        : `time-attack-${ts}.png`;
       a.click();
     }
 
     saveBtn.onclick = saveSnapshot;
 
-    // TIMER BUTTONS
+    /* BUTTON EVENTS */
     startBtn.onclick = startTimer;
     pauseBtn.onclick = pauseTimer;
     stopBtn.onclick = stopTimer;
     resetBtn.onclick = resetTimer;
 
-    // ADJUST BUTTONS
     document.querySelectorAll(".adjustments button").forEach(btn => {
       btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
     });

@@ -9,7 +9,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
     }
 
     body {
@@ -27,7 +28,7 @@
       border-radius: 1.25rem;
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
@@ -35,7 +36,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.6rem;
     }
 
     .title {
@@ -52,6 +53,22 @@
       border-radius: 999px;
       border: 1px solid rgba(251, 191, 36, 0.7);
       color: #facc15;
+    }
+
+    .logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .logos img {
+      max-height: 52px;
+      width: auto;
+      object-fit: contain;
+      opacity: 0.95;
     }
 
     .timer-display {
@@ -134,7 +151,8 @@
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, opacity 0.1s ease;
+      transition: transform 0.08s ease, box-shadow 0.08s ease,
+        background 0.15s ease, opacity 0.1s ease;
       background: #111827;
       color: #e5e7eb;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
@@ -195,49 +213,50 @@
       border: 1px solid rgba(52, 211, 153, 0.7);
     }
 
-    .set-time {
+    .driver-section {
       display: flex;
       gap: 0.5rem;
-      align-items: center;
+      align-items: stretch;
+      margin-bottom: 0.9rem;
       font-size: 0.8rem;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
-    .set-time label {
+    .driver-section label {
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
       flex: 1;
     }
 
-    .set-time span {
+    .driver-section span {
       text-transform: uppercase;
       letter-spacing: 0.15em;
       font-size: 0.65rem;
     }
 
-    .set-time input {
-      padding: 0.4rem 0.5rem;
-      border-radius: 0.6rem;
+    .driver-section input {
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.7rem;
       border: 1px solid rgba(148, 163, 184, 0.5);
       background: #020617;
       color: #e5e7eb;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       outline: none;
       width: 100%;
     }
 
-    .set-time input:focus {
+    .driver-section input:focus {
       border-color: #38bdf8;
       box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
     }
 
-    .btn-set {
-      flex-basis: 30%;
+    .btn-save {
+      flex-basis: 40%;
       padding: 0.7rem 0.7rem;
       border-radius: 0.9rem;
       border: none;
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      background: linear-gradient(135deg, #eab308, #f97316);
       color: #0b1120;
       font-size: 0.8rem;
       font-weight: 700;
@@ -249,7 +268,7 @@
     }
 
     .hint {
-      margin-top: 0.7rem;
+      margin-top: 0.3rem;
       font-size: 0.7rem;
       opacity: 0.7;
       text-align: center;
@@ -267,10 +286,18 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <!-- This is the area we'll "screenshot" -->
+  <div class="app" id="captureArea">
     <div class="app-header">
       <div class="title">Time Attack</div>
       <div class="badge">Challenge Mode</div>
+    </div>
+
+    <div class="logos">
+      <!-- replace src values with your own filenames/paths -->
+      <img src="rcx-cafe-logo.png" alt="RCX Cafe Logo" />
+      <img src="southside-rc-logo.png" alt="Southside Cebu RC Logo" />
+      <img src="crawl-me-maybe-logo.png" alt="Crawl Me Maybe Logo" />
     </div>
 
     <div class="timer-display">
@@ -295,12 +322,25 @@
       <button class="positive" data-adjust="30">+30s</button>
     </div>
 
-    
-    
+    <div class="driver-section">
+      <label for="driverName">
+        <span>Driver's Name</span>
+        <input id="driverName" type="text" placeholder="Enter driver name" />
+      </label>
+      <button id="saveBtn" class="btn-save">Save Snapshot</button>
+    </div>
+
+    <p class="hint">
+      Hit <strong>Start</strong>, adjust with ±5/10/30s, type the driver's name,
+      then use <strong>Save Snapshot</strong> to download an image.
+    </p>
   </div>
 
+  <!-- html2canvas for screenshot capture -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <script>
-    // --- State ---
+    // --- Timer state ---
     let elapsedMs = 0;
     let running = false;
     let intervalId = null;
@@ -312,11 +352,11 @@
     const pauseBtn = document.getElementById('pauseBtn');
     const stopBtn = document.getElementById('stopBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const minutesInput = document.getElementById('minutesInput');
-    const secondsInput = document.getElementById('secondsInput');
-    const setBtn = document.getElementById('setBtn');
     const adjustmentButtons = document.querySelectorAll('.adjustments button');
     const adjustFlashEl = document.getElementById('adjustFlash');
+    const driverNameInput = document.getElementById('driverName');
+    const saveBtn = document.getElementById('saveBtn');
+    const captureArea = document.getElementById('captureArea');
 
     function formatTime(ms) {
       const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -358,7 +398,7 @@
         stopBtn.disabled = false;
         resetBtn.disabled = false;
       } else { // stopped
-        startBtn.disabled = false;        // can start from 0 or current time
+        startBtn.disabled = false;
         pauseBtn.disabled = true;
         stopBtn.disabled = elapsedMs <= 0;
         resetBtn.disabled = elapsedMs <= 0;
@@ -395,7 +435,7 @@
         clearInterval(intervalId);
         intervalId = null;
       }
-      setStatus('stopped');      // keep current time, just stop
+      setStatus('stopped'); // keep current time
       setButtonsForState('stopped');
     }
 
@@ -417,12 +457,10 @@
       adjustFlashEl.classList.remove('show-positive', 'show-negative');
       adjustFlashEl.classList.add(seconds >= 0 ? 'show-positive' : 'show-negative');
 
-      // Restart animation
       adjustFlashEl.classList.remove('show');
-      void adjustFlashEl.offsetWidth; // force reflow
+      void adjustFlashEl.offsetWidth; // restart animation
       adjustFlashEl.classList.add('show');
 
-      // Hide after a short time
       setTimeout(() => {
         adjustFlashEl.classList.remove('show');
       }, 350);
@@ -436,22 +474,35 @@
       setButtonsForState(currentState);
     }
 
-    function setCustomTime() {
-      const minutes = parseInt(minutesInput.value, 10) || 0;
-      const seconds = parseInt(secondsInput.value, 10) || 0;
+    async function saveSnapshot() {
+      if (!window.html2canvas) {
+        alert('Screenshot library failed to load. Please check your internet connection.');
+        return;
+      }
 
-      const clampedMinutes = Math.max(0, Math.min(599, minutes));
-      const clampedSeconds = Math.max(0, Math.min(59, seconds));
+      const driverName = driverNameInput.value.trim();
 
-      const totalSeconds = clampedMinutes * 60 + clampedSeconds;
-      elapsedMs = totalSeconds * 1000;
-
-      updateDisplay();
-      setStatus('stopped');
-      setButtonsForState('stopped');
+      try {
+        const canvas = await html2canvas(captureArea, {
+          backgroundColor: null,
+          scale: window.devicePixelRatio || 1
+        });
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = driverName
+          ? `time-attack-${driverName.replace(/\\s+/g, '_')}.png`
+          : 'time-attack-snapshot.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error(err);
+        alert('Sorry, something went wrong while creating the snapshot.');
+      }
     }
 
-    // --- Event Listeners ---
+    // --- Event listeners ---
     startBtn.addEventListener('click', startTimer);
     pauseBtn.addEventListener('click', pauseTimer);
     stopBtn.addEventListener('click', stopTimer);
@@ -464,9 +515,9 @@
       });
     });
 
-    setBtn.addEventListener('click', setCustomTime);
+    saveBtn.addEventListener('click', saveSnapshot);
 
-    // Initialize display
+    // Initialize
     updateDisplay();
     setButtonsForState('stopped');
   </script>

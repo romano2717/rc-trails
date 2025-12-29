@@ -48,6 +48,8 @@
         text-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
         pointer-events: none;
         z-index: 10;
+        border-width: 3;
+        border-color: #b91c1c;
       }
 
       .app-header {
@@ -264,11 +266,18 @@
         letter-spacing: 0.12em;
         min-height: 52px;
       }
+
+      .dnfBtn {
+        color: #fff !important;
+        font-size: 22px !important;
+        border-color: #000 !important;
+        background-color: #b91c1c !important;
+      }
     </style>
   </head>
   <body>
     <div class="app" id="captureArea">
-      <div class="dnf-stamp" id="dnfStamp">DNF</div>
+      <div class="dnf-stamp" id="dnfStamp">DID NOT FINISH</div>
 
       <div class="app-header">
         <div class="title">Time Attack</div>
@@ -315,7 +324,7 @@
         <button class="positive" data-adjust="5">+5</button>
         <button class="positive" data-adjust="10">+10</button>
         <button class="positive" data-adjust="30">+30</button>
-        <button id="dnfBtn">DNF</button>
+        <button class="dnfBtn" id="dnfBtn">DNF</button>
       </div>
 
       <div class="driver-section">
@@ -405,8 +414,8 @@
         });
 
       dnfBtn.onclick = () => {
+        stopTimer();
         dnfStamp.style.display = "flex";
-        setStatus("stopped");
       };
 
       startBtn.onclick = startTimer;

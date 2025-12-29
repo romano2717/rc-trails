@@ -167,6 +167,8 @@
         text-transform: uppercase;
         letter-spacing: 0.2em;
         opacity: 0.7;
+        color: #b91c1c;
+        font-weight: 800;
       }
 
       .controls {
@@ -380,6 +382,14 @@
       }
 
       function startTimer() {
+        const driverInput = document.getElementById("driverName");
+        const driverName = driverInput.value.trim();
+
+        if (driverName == "" || photoPreview.src.length <= 0) {
+          alert("MISSING DRIVER NAME OR PHOTO");
+          return;
+        }
+
         if (running) return;
         running = true;
         intervalId = setInterval(() => {

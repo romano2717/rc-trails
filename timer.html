@@ -218,7 +218,7 @@
 
       .adjustments {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 0.5rem;
         margin-bottom: 1rem;
       }
@@ -273,6 +273,11 @@
         border-color: #000 !important;
         background-color: #b91c1c !important;
       }
+      .timeElapsedDiv {
+        color: #b91c1c;
+        font-size: 22px;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
@@ -323,10 +328,14 @@
       <div class="adjustments">
         <button class="positive" data-adjust="5">+5</button>
         <button class="positive" data-adjust="10">+10</button>
-        <button class="positive" data-adjust="30">+30</button>
+        <button class="positive" data-adjust="15">+15</button>
         <button class="dnfBtn" id="dnfBtn">DNF</button>
       </div>
-
+      <div class="timeElapsedDiv">
+        <div>
+          <div id="timeElapsed" class="timeElapsed">Time Remaining: 00:00</div>
+        </div>
+      </div>
       <div class="driver-section">
         <label>
           <span>Driver's Name</span>
@@ -343,6 +352,9 @@
       let running = false;
       let intervalId = null;
       let totalDeductions = 0;
+      // let timeLimitMs = 600000; //10minutes
+      let timeLimitMs = 60000; //1min
+      let runningTimeMs = timeLimitMs;
 
       const dnfStamp = document.getElementById("dnfStamp");
 
@@ -352,6 +364,13 @@
           String(Math.floor(total / 60)).padStart(2, "0") +
           ":" +
           String(total % 60).padStart(2, "0");
+
+        const runningTotal = Math.floor(runningTimeMs / 1000);
+        timeElapsed.textContent =
+          "Time Remaining : " +
+          String(Math.floor(runningTotal / 60)).padStart(2, "0") +
+          ":" +
+          String(runningTotal % 60).padStart(2, "0");
       }
 
       function setStatus(state) {
@@ -364,6 +383,14 @@
         running = true;
         intervalId = setInterval(() => {
           elapsedMs += 100;
+          runningTimeMs -= 100;
+
+          if (runningTimeMs <= 0) {
+            stopTimer();
+            dnfBtn.click();
+            clearInterval(intervalId);
+          }
+
           updateDisplay();
         }, 100);
         setStatus("running");

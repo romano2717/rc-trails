@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Time Attack Scoring (30/70)</title>
+  <style>
+    :root { --bg:#0b1020; --card:#121a33; --text:#e9ecf6; --muted:#aab2d5; --line:#243059; --accent:#66e3ff; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow: 0 12px 30px rgba(0,0,0,.25); }
+    .grid { display:grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap:10px; align-items:end; }
+    label { display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:#0e1631; color:var(--text); outline:none; }
+    input::placeholder { color:#6f7ab0; }
+    .btn { padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:#0e1631; color:var(--text); cursor:pointer; }
+    .btn.primary { background: linear-gradient(135deg, #0e1631, #0e1631) padding-box,
+                              linear-gradient(135deg, var(--accent), #8b5cf6) border-box;
+                   border:1px solid transparent; }
+    .btn:active { transform: translateY(1px); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    .pill { font-size: 12px; color: var(--muted); }
+    table { width:100%; border-collapse: collapse; margin-top: 14px; }
+    th, td { padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; }
+    th { font-size:12px; color: var(--muted); font-weight:600; }
+    td { font-size: 14px; }
+    .right { text-align:right; }
+    .rank { font-weight:700; }
+    .winner { color: var(--accent); }
+    .danger { color: #ff7a7a; }
+    .small { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.4; }
+    code { background:#0e1631; padding:2px 6px; border-radius:8px; border:1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Time Attack Challenge Scoring <span class="pill">(30% time, 70% deductions)</span></h1>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label for="name">Player name</label>
+          <input id="name" placeholder="e.g., Player 1" />
+        </div>
+        <div>
+          <label for="time">Time (m:ss or mm:ss)</label>
+          <input id="time" placeholder="e.g., 3:15" />
+        </div>
+        <div>
+          <label for="ded">Total deductions (0+)</label>
+          <input id="ded" type="number" min="0" step="1" placeholder="e.g., 30" />
+        </div>
+        <div>
+          <button class="btn primary" id="addBtn">Add player</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="computeBtn">Compute points</button>
+        <button class="btn" id="clearBtn">Clear all</button>
+        <span class="pill" id="status"></span>
+      </div>
+
+      <table id="table" aria-label="Results table">
+        <thead>
+          <tr>
+            <th class="right">Rank</th>
+            <th>Player</th>
+            <th>Time</th>
+            <th class="right">Time (s)</th>
+            <th class="right">Deductions</th>
+            <th class="right">TimeScore</th>
+            <th class="right">DeductionScore</th>
+            <th class="right">Points</th>
+            <th class="right">Remove</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <!-- rows injected -->
+        </tbody>
+      </table>
+
+      <div class="small">
+        Formula per event (based on current entrants):
+        <br/>
+        <code>TimeScore = (Tmax - Ti)/(Tmax - Tmin)</code> (or 1 if all times equal)
+        <br/>
+        <code>DeductionScore = (Dmax - Di)/(Dmax - Dmin)</code> (or 1 if all deductions equal)
+        <br/>
+        <code>Points = 100 * (0.30*TimeScore + 0.70*DeductionScore)</code>
+        <br/>
+        Tie-breakers: higher points → lower deductions → lower time.
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ----- Utilities -----
+  function parseTimeToSeconds(str) {
+    // Accepts m:ss or mm:ss (also allows whitespace).
+    const s = (str || "").trim();
+    const m = s.match(/^(\d+)\s*:\s*([0-5]?\d)$/);
+    if (!m) return null;
+    const minutes = Number(m[1]);
+    const seconds = Number(m[2]);
+    return minutes * 60 + seconds;
+  }
+
+  function formatSecondsToTime(totalSeconds) {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  function clamp01(x) {
+    return Math.max(0, Math.min(1, x));
+  }
+
+  function round(n, d=4) {
+    const p = Math.pow(10, d);
+    return Math.round(n * p) / p;
+  }
+
+  // ----- State -----
+  const state = {
+    players: [] // { id, name, timeStr, timeSec, deductions, timeScore, dedScore, points }
+  };
+
+  // ----- DOM -----
+  const nameEl = document.getElementById("name");
+  const timeEl = document.getElementById("time");
+  const dedEl  = document.getElementById("ded");
+  const addBtn = document.getElementById("addBtn");
+  const computeBtn = document.getElementById("computeBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const tbody = document.getElementById("tbody");
+  const statusEl = document.getElementById("status");
+
+  function setStatus(msg, isError=false) {
+    statusEl.textContent = msg || "";
+    statusEl.className = "pill" + (isError ? " danger" : "");
+  }
+
+  // ----- Rendering -----
+  function render() {
+    tbody.innerHTML = "";
+    if (state.players.length === 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="9" class="pill">No players yet. Add at least 2 then compute.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+
+    state.players.forEach((p, idx) => {
+      const tr = document.createElement("tr");
+
+      const rank = p.rank ?? "";
+      const rankClass = (rank === 1 || rank === 2 || rank === 3) ? "rank winner" : "rank";
+
+      tr.innerHTML = `
+        <td class="right ${rankClass}">${rank}</td>
+        <td>${escapeHtml(p.name)}</td>
+        <td>${escapeHtml(p.timeStr)}</td>
+        <td class="right">${p.timeSec ?? ""}</td>
+        <td class="right">${p.deductions ?? ""}</td>
+        <td class="right">${p.timeScore != null ? round(p.timeScore, 4) : ""}</td>
+        <td class="right">${p.dedScore != null ? round(p.dedScore, 4) : ""}</td>
+        <td class="right">${p.points != null ? round(p.points, 2) : ""}</td>
+        <td class="right"><button class="btn" data-remove="${p.id}">X</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // hook up remove buttons
+    tbody.querySelectorAll("button[data-remove]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-remove");
+        state.players = state.players.filter(p => p.id !== id);
+        compute(); // recompute after remove
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  // ----- Core computation -----
+  function compute() {
+    // Reset computed fields
+    state.players.forEach(p => { p.timeScore = null; p.dedScore = null; p.points = null; p.rank = null; });
+
+    if (state.players.length < 2) {
+      setStatus("Add at least 2 players to compute rankings.", true);
+      render();
+      return;
+    }
+
+    const times = state.players.map(p => p.timeSec);
+    const deds  = state.players.map(p => p.deductions);
+
+    const Tmin = Math.min(...times);
+    const Tmax = Math.max(...times);
+    const Dmin = Math.min(...deds);
+    const Dmax = Math.max(...deds);
+
+    const timeDen = (Tmax - Tmin);
+    const dedDen  = (Dmax - Dmin);
+
+    state.players.forEach(p => {
+      const timeScore = (timeDen === 0) ? 1 : (Tmax - p.timeSec) / timeDen;
+      const dedScore  = (dedDen === 0) ? 1 : (Dmax - p.deductions) / dedDen;
+
+      p.timeScore = clamp01(timeScore);
+      p.dedScore  = clamp01(dedScore);
+      p.points = 100 * (0.30 * p.timeScore + 0.70 * p.dedScore);
+    });
+
+    // Sort with tie-breakers: points desc, deductions asc, time asc
+    const sorted = [...state.players].sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (a.deductions !== b.deductions) return a.deductions - b.deductions;
+      return a.timeSec - b.timeSec;
+    });
+
+    // Assign ranks (1..n). If you want shared ranks on perfect ties, adjust here.
+    sorted.forEach((p, i) => { p.rank = i + 1; });
+
+    // Keep state.players in sorted order for display
+    state.players = sorted;
+
+    setStatus(`Computed. Tmin=${Tmin}s, Tmax=${Tmax}s, Dmin=${Dmin}, Dmax=${Dmax}.`);
+    render();
+  }
+
+  // ----- Add player -----
+  function addPlayer() {
+    const name = (nameEl.value || "").trim();
+    const timeStr = (timeEl.value || "").trim();
+    const dedStr = (dedEl.value || "").trim();
+
+    if (!name) return setStatus("Player name is required.", true);
+    const timeSec = parseTimeToSeconds(timeStr);
+    if (timeSec == null) return setStatus("Time must be in m:ss (e.g., 3:15).", true);
+
+    const deductions = Number(dedStr);
+    if (!Number.isFinite(deductions) || deductions < 0) return setStatus("Deductions must be 0 or more.", true);
+
+    state.players.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      name,
+      timeStr: formatSecondsToTime(timeSec), // normalize display
+      timeSec,
+      deductions: Math.round(deductions)
+    });
+
+    nameEl.value = "";
+    timeEl.value = "";
+    dedEl.value = "";
+    setStatus("Player added. Click Compute points.");
+    render();
+  }
+
+  // ----- Wire up UI -----
+  addBtn.addEventListener("click", addPlayer);
+  computeBtn.addEventListener("click", compute);
+  clearBtn.addEventListener("click", () => {
+    state.players = [];
+    setStatus("Cleared.");
+    render();
+  });
+
+  // Enter key to add
+  [nameEl, timeEl, dedEl].forEach(el => {
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addPlayer();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>

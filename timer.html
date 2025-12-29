@@ -1,422 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Time Attack Challenge</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Time Attack Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #20293a, #020617);
-      color: #e5e7eb;
-    }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top, #20293a, #020617);
+        color: #e5e7eb;
+      }
 
-    .app {
-      position: relative;
-      background: rgba(15, 23, 42, 0.95);
-      padding: 1.75rem;
-      border-radius: 1.25rem;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-      width: 100%;
-      max-width: 480px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
+      .app {
+        position: relative;
+        background: rgba(15, 23, 42, 0.95);
+        padding: 1.75rem;
+        border-radius: 1.25rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+        width: 100%;
+        max-width: 480px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
 
-    /* DNF STAMP */
-    .dnf-stamp {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 4.5rem;
-      font-weight: 900;
-      color: rgba(239, 68, 68, 0.85);
-      letter-spacing: 0.25em;
-      transform: rotate(-15deg);
-      text-shadow: 0 0 18px rgba(0,0,0,0.8);
-      pointer-events: none;
-      z-index: 10;
-    }
+      /* DNF STAMP */
+      .dnf-stamp {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 4.5rem;
+        font-weight: 900;
+        color: rgba(239, 68, 68, 0.85);
+        letter-spacing: 0.25em;
+        transform: rotate(-15deg);
+        text-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        z-index: 10;
+      }
 
-    .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.6rem;
-    }
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.6rem;
+      }
 
-    .title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
+      .title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
 
-    .badge {
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      padding: 0.2rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(251, 191, 36, 0.7);
-      color: #facc15;
-    }
+      .badge {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(251, 191, 36, 0.7);
+        color: #facc15;
+      }
 
-    .logos {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 0.9rem;
-      flex-wrap: wrap;
-    }
+      .logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.9rem;
+        flex-wrap: wrap;
+      }
 
-    .logos img {
-      max-height: 52px;
-      width: auto;
-      object-fit: contain;
-      opacity: 0.95;
-    }
+      .logos img {
+        max-height: 52px;
+        width: auto;
+        object-fit: contain;
+        opacity: 0.95;
+      }
 
-    .photo-section {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 0.7rem;
-    }
+      .photo-section {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.7rem;
+      }
 
-    .btn-photo {
-      padding: 0.6rem 1.2rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-      color: #0b1120;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-    }
+      .btn-photo {
+        padding: 0.6rem 1.2rem;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        color: #0b1120;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      }
 
-    .photo-preview {
-      width: 120px;
-      height: 120px;
-      border-radius: 0.9rem;
-      object-fit: cover;
-      border: 2px solid rgba(248, 250, 252, 0.7);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-      cursor: pointer;
-    }
+      .photo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 0.9rem;
+        object-fit: cover;
+        border: 2px solid rgba(248, 250, 252, 0.7);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+      }
 
-    .timer-display {
-      text-align: center;
-      margin-bottom: 1.25rem;
-      position: relative;
-    }
+      .timer-display {
+        text-align: center;
+        margin-bottom: 1.25rem;
+        position: relative;
+      }
 
-    .time {
-      font-size: 3rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      padding: 0.9rem 1.2rem;
-      border-radius: 0.9rem;
-      background: radial-gradient(circle at top, #0f172a, #020617);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      display: inline-block;
-      min-width: 9ch;
-    }
+      .time {
+        font-size: 3rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        padding: 0.9rem 1.2rem;
+        border-radius: 0.9rem;
+        background: radial-gradient(circle at top, #0f172a, #020617);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        display: inline-block;
+        min-width: 9ch;
+      }
 
-    .adjust-flash {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      font-weight: 900;
-      font-size: 2.4rem;
-      opacity: 0;
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
-    }
+      .adjust-flash {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        font-weight: 900;
+        font-size: 2.4rem;
+        opacity: 0;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+      }
 
-    .adjust-flash.show {
-      opacity: 1;
-      transform: translate(-50%, -90%) scale(1.15);
-    }
+      .adjust-flash.show {
+        opacity: 1;
+        transform: translate(-50%, -90%) scale(1.15);
+      }
 
-    .adjust-flash.show-positive { color: #4ade80; }
+      .adjust-flash.show-positive {
+        color: #4ade80;
+      }
 
-    .status {
-      margin-top: 0.4rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      opacity: 0.7;
-    }
+      .status {
+        margin-top: 0.4rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        opacity: 0.7;
+      }
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 0.3rem;
-    }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 0.3rem;
+      }
 
-    .controls button,
-    .adjustments button {
-      flex: 1 1 calc(50% - 0.6rem);
-      padding: 0.9rem 1rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: #111827;
-      color: #e5e7eb;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      min-height: 52px;
-    }
+      .controls button,
+      .adjustments button {
+        flex: 1 1 calc(50% - 0.6rem);
+        padding: 0.9rem 1rem;
+        border-radius: 999px;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: #111827;
+        color: #e5e7eb;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        min-height: 52px;
+      }
 
-    .btn-start { background: linear-gradient(135deg, #22c55e, #16a34a); }
-    .btn-pause { background: linear-gradient(135deg, #f97316, #ea580c); }
-    .btn-stop  { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-    .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
+      .btn-start {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+      }
+      .btn-pause {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+      }
+      .btn-stop {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+      }
+      .btn-reset {
+        background: linear-gradient(135deg, #64748b, #475569);
+      }
 
-    .deductions-line {
-      margin: 0.25rem 0 0.9rem 0;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #fbbf24;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
+      .deductions-line {
+        margin: 0.25rem 0 0.9rem 0;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #fbbf24;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
 
-    .adjustments {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
+      .adjustments {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
 
-    .adjustments button.positive {
-      border: 1px solid rgba(52,211,153,0.7);
-    }
+      .adjustments button.positive {
+        border: 1px solid rgba(52, 211, 153, 0.7);
+      }
 
-    .driver-section {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.9rem;
-    }
+      .driver-section {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.9rem;
+      }
 
-    .driver-section label {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+      .driver-section label {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .driver-section span {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-    }
+      .driver-section span {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
 
-    .driver-section input {
-      padding: 0.5rem 0.6rem;
-      border-radius: 0.6rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 1rem;
-    }
+      .driver-section input {
+        padding: 0.5rem 0.6rem;
+        border-radius: 0.6rem;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 1rem;
+      }
 
-    .btn-save {
-      flex-basis: 40%;
-      padding: 0.7rem;
-      border-radius: 0.9rem;
-      border: none;
-      background: linear-gradient(135deg, #eab308, #f97316);
-      color: #0b1120;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      min-height: 52px;
-    }
-  </style>
-</head>
-<body>
-  <div class="app" id="captureArea">
+      .btn-save {
+        flex-basis: 40%;
+        padding: 0.7rem;
+        border-radius: 0.9rem;
+        border: none;
+        background: linear-gradient(135deg, #eab308, #f97316);
+        color: #0b1120;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        min-height: 52px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="captureArea">
+      <div class="dnf-stamp" id="dnfStamp">DNF</div>
 
-    <div class="dnf-stamp" id="dnfStamp">DNF</div>
+      <div class="app-header">
+        <div class="title">Time Attack</div>
+        <div class="badge">Challenge Mode</div>
+      </div>
 
-    <div class="app-header">
-      <div class="title">Time Attack</div>
-      <div class="badge">Challenge Mode</div>
+      <div class="logos">
+        <img src="rcx-cafe-logo.jpg" />
+        <img src="southside-rc-logo.png" />
+        <img src="crawl-me-maybe-logo.jpg" />
+      </div>
+
+      <div class="photo-section">
+        <button id="photoBtn" class="btn-photo">Take Photo</button>
+        <img id="photoPreview" class="photo-preview" style="display: none;" />
+        <input
+          id="photoInput"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style="display: none;"
+        />
+      </div>
+
+      <div class="timer-display">
+        <div id="time" class="time">00:00</div>
+        <div id="adjustFlash" class="adjust-flash"></div>
+        <div id="status" class="status status-stopped">Stopped</div>
+      </div>
+
+      <div class="controls">
+        <button id="startBtn" class="btn-start">Start</button>
+        <button id="pauseBtn" class="btn-pause">Pause</button>
+        <button id="stopBtn" class="btn-stop">Stop</button>
+        <button id="resetBtn" class="btn-reset">Reset</button>
+      </div>
+
+      <div id="deductionsText" class="deductions-line">
+        Total Deductions: 0 points
+      </div>
+
+      <!-- ADJUSTMENTS: POSITIVE + DNF ONLY -->
+      <div class="adjustments">
+        <button class="positive" data-adjust="5">+5</button>
+        <button class="positive" data-adjust="10">+10</button>
+        <button class="positive" data-adjust="30">+30</button>
+        <button id="dnfBtn">DNF</button>
+      </div>
+
+      <div class="driver-section">
+        <label>
+          <span>Driver's Name</span>
+          <input id="driverName" type="text" placeholder="Enter name" />
+        </label>
+        <button id="saveBtn" class="btn-save">Save</button>
+      </div>
     </div>
 
-    <div class="logos">
-      <img src="rcx-cafe-logo.jpg">
-      <img src="southside-rc-logo.png">
-      <img src="crawl-me-maybe-logo.jpg">
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-    <div class="photo-section">
-      <button id="photoBtn" class="btn-photo">Take Photo</button>
-      <img id="photoPreview" class="photo-preview" style="display:none;">
-      <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;">
-    </div>
+    <script>
+      let elapsedMs = 0;
+      let running = false;
+      let intervalId = null;
+      let totalDeductions = 0;
 
-    <div class="timer-display">
-      <div id="time" class="time">00:00</div>
-      <div id="adjustFlash" class="adjust-flash"></div>
-      <div id="status" class="status status-stopped">Stopped</div>
-    </div>
+      const dnfStamp = document.getElementById("dnfStamp");
 
-    <div class="controls">
-      <button id="startBtn" class="btn-start">Start</button>
-      <button id="pauseBtn" class="btn-pause">Pause</button>
-      <button id="stopBtn" class="btn-stop">Stop</button>
-      <button id="resetBtn" class="btn-reset">Reset</button>
-    </div>
+      function updateDisplay() {
+        const total = Math.floor(elapsedMs / 1000);
+        time.textContent =
+          String(Math.floor(total / 60)).padStart(2, "0") +
+          ":" +
+          String(total % 60).padStart(2, "0");
+      }
 
-    <div id="deductionsText" class="deductions-line">
-      Total Deductions: 0 points
-    </div>
+      function setStatus(state) {
+        const status = document.getElementById("status");
+        status.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+      }
 
-    <!-- ADJUSTMENTS: POSITIVE + DNF ONLY -->
-    <div class="adjustments">
-      <button class="positive" data-adjust="5">+5</button>
-      <button class="positive" data-adjust="10">+10</button>
-      <button class="positive" data-adjust="30">+30</button>
-      <button id="dnfBtn">DNF</button>
-    </div>
+      function startTimer() {
+        if (running) return;
+        running = true;
+        intervalId = setInterval(() => {
+          elapsedMs += 100;
+          updateDisplay();
+        }, 100);
+        setStatus("running");
+      }
 
-    <div class="driver-section">
-      <label>
-        <span>Driver's Name</span>
-        <input id="driverName" type="text" placeholder="Enter name">
-      </label>
-      <button id="saveBtn" class="btn-save">Save</button>
-    </div>
+      function pauseTimer() {
+        running = false;
+        clearInterval(intervalId);
+        setStatus("paused");
+      }
 
-  </div>
+      function stopTimer() {
+        running = false;
+        clearInterval(intervalId);
+        setStatus("stopped");
+      }
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-  <script>
-    let elapsedMs = 0;
-    let running = false;
-    let intervalId = null;
-    let totalDeductions = 0;
-
-    const dnfStamp = document.getElementById("dnfStamp");
-
-    function updateDisplay() {
-      const total = Math.floor(elapsedMs / 1000);
-      time.textContent =
-        String(Math.floor(total / 60)).padStart(2, "0") +
-        ":" +
-        String(total % 60).padStart(2, "0");
-    }
-
-    function setStatus(state) {
-      status.textContent = state.charAt(0).toUpperCase() + state.slice(1);
-    }
-
-    function startTimer() {
-      if (running) return;
-      running = true;
-      intervalId = setInterval(() => {
-        elapsedMs += 100;
+      function resetTimer() {
+        running = false;
+        clearInterval(intervalId);
+        elapsedMs = 0;
+        totalDeductions = 0;
+        dnfStamp.style.display = "none";
+        deductionsText.textContent = "Total Deductions: 0 points";
         updateDisplay();
-      }, 100);
-      setStatus("running");
-    }
+        setStatus("stopped");
+      }
 
-    function pauseTimer() {
-      running = false;
-      clearInterval(intervalId);
-      setStatus("paused");
-    }
+      function showFlash(sec) {
+        const flash = document.getElementById("adjustFlash");
+        flash.textContent = `+${sec}`;
+        flash.classList.add("show", "show-positive");
+        setTimeout(() => flash.classList.remove("show"), 900);
+      }
 
-    function stopTimer() {
-      running = false;
-      clearInterval(intervalId);
-      setStatus("stopped");
-    }
+      function adjustTime(sec) {
+        elapsedMs += sec * 1000;
+        updateDisplay();
+        showFlash(sec);
+        totalDeductions += sec;
+        deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
+      }
 
-    function resetTimer() {
-      running = false;
-      clearInterval(intervalId);
-      elapsedMs = 0;
-      totalDeductions = 0;
-      dnfStamp.style.display = "none";
-      deductionsText.textContent = "Total Deductions: 0 points";
+      document
+        .querySelectorAll(".adjustments button[data-adjust]")
+        .forEach((btn) => {
+          btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
+        });
+
+      dnfBtn.onclick = () => {
+        dnfStamp.style.display = "flex";
+        setStatus("stopped");
+      };
+
+      startBtn.onclick = startTimer;
+      pauseBtn.onclick = pauseTimer;
+      stopBtn.onclick = stopTimer;
+      resetBtn.onclick = resetTimer;
+
+      photoBtn.onclick = () => photoInput.click();
+      photoPreview.onclick = () => photoInput.click();
+
+      photoInput.onchange = () => {
+        const file = photoInput.files[0];
+        if (!file) return;
+        photoPreview.src = URL.createObjectURL(file);
+        photoPreview.style.display = "block";
+        photoBtn.style.display = "none";
+      };
+
+      saveBtn.onclick = async () => {
+        const canvas = await html2canvas(captureArea);
+        const a = document.createElement("a");
+        a.confirm = true;
+        a.href = canvas.toDataURL("image/png");
+        a.download = "time-attack.png";
+        a.click();
+      };
+
       updateDisplay();
-      setStatus("stopped");
-    }
-
-    function showFlash(sec) {
-      const flash = document.getElementById("adjustFlash");
-      flash.textContent = `+${sec}`;
-      flash.classList.add("show", "show-positive");
-      setTimeout(() => flash.classList.remove("show"), 900);
-    }
-
-    function adjustTime(sec) {
-      elapsedMs += sec * 1000;
-      updateDisplay();
-      showFlash(sec);
-      totalDeductions += sec;
-      deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
-    }
-
-    document.querySelectorAll(".adjustments button[data-adjust]").forEach(btn => {
-      btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
-    });
-
-    dnfBtn.onclick = () => {
-      dnfStamp.style.display = "flex";
-    };
-
-    startBtn.onclick = startTimer;
-    pauseBtn.onclick = pauseTimer;
-    stopBtn.onclick = stopTimer;
-    resetBtn.onclick = resetTimer;
-
-    photoBtn.onclick = () => photoInput.click();
-    photoPreview.onclick = () => photoInput.click();
-
-    photoInput.onchange = () => {
-      const file = photoInput.files[0];
-      if (!file) return;
-      photoPreview.src = URL.createObjectURL(file);
-      photoPreview.style.display = "block";
-      photoBtn.style.display = "none";
-    };
-
-    saveBtn.onclick = async () => {
-      const canvas = await html2canvas(captureArea);
-      const a = document.createElement("a");
-      a.confirm = true;
-      a.href = canvas.toDataURL("image/png");
-      a.download = "time-attack.png";
-      a.click();
-    };
-
-    updateDisplay();
-  </script>
-</body>
+    </script>
+  </body>
 </html>

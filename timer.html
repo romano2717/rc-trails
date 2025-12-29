@@ -218,7 +218,7 @@
 
       .adjustments {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 0.5rem;
         margin-bottom: 1rem;
       }
@@ -328,7 +328,8 @@
       <div class="adjustments">
         <button class="positive" data-adjust="5">+5</button>
         <button class="positive" data-adjust="10">+10</button>
-        <button class="positive" data-adjust="15">+15</button>
+        <button class="positive" data-adjust="15">+20</button>
+        <button class="positive" data-adjust="30">+30</button>
         <button class="dnfBtn" id="dnfBtn">DNF</button>
       </div>
       <div class="timeElapsedDiv">
@@ -352,8 +353,8 @@
       let running = false;
       let intervalId = null;
       let totalDeductions = 0;
-       let timeLimitMs = 600000; //10minutes
-      //let timeLimitMs = 60000; //1min
+      let timeLimitMs = 600000; //10minutes
+      // let timeLimitMs = 60000; //1min
       let runningTimeMs = timeLimitMs;
 
       const dnfStamp = document.getElementById("dnfStamp");
@@ -413,6 +414,8 @@
         clearInterval(intervalId);
         elapsedMs = 0;
         totalDeductions = 0;
+        timeLimitMs = 600000;
+        runningTimeMs = timeLimitMs;
         dnfStamp.style.display = "none";
         deductionsText.textContent = "Total Deductions: 0 points";
         updateDisplay();

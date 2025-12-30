@@ -280,6 +280,26 @@
         font-size: 22px;
         font-weight: 600;
       }
+      #timelimitDiv {
+        flex: auto;
+        flex-direction: column;
+      }
+      #timeLimitAdjust {
+        flex: 1;
+      }
+      #moreTimeLimitBtn {
+        width: 35px;
+        height: 35px;
+        background-color: #16a34a;
+        font-size: x-large;
+      }
+      #lessTimeLimitBtn {
+        width: 35px;
+        height: 35px;
+        background-color: red;
+        font-size: x-large;
+        margin-left: 15px;
+      }
     </style>
   </head>
   <body>
@@ -334,9 +354,16 @@
         <button class="positive" data-adjust="30">+30</button>
         <button class="dnfBtn" id="dnfBtn">DNF</button>
       </div>
-      <div class="timeElapsedDiv">
-        <div>
-          <div id="timeElapsed" class="timeElapsed">Time Remaining: 00:00</div>
+      <div id="timelimitDiv">
+        <div id="timeLimitAdjust">
+          <button id="moreTimeLimitBtn">+</button>
+          <button id="lessTimeLimitBtn">-</button>
+        </div>
+
+        <div class="timeElapsedDiv">
+          <div id="timeElapsed" class="timeElapsed">
+            Time Remaining: 00:00
+          </div>
         </div>
       </div>
       <div class="driver-section">
@@ -368,6 +395,10 @@
           ":" +
           String(total % 60).padStart(2, "0");
 
+        updateTimeRemaining();
+      }
+
+      function updateTimeRemaining() {
         const runningTotal = Math.floor(runningTimeMs / 1000);
         timeElapsed.textContent =
           "Time Remaining : " +
@@ -443,7 +474,7 @@
       }
 
       function adjustTime(sec) {
-        elapsedMs += sec * 1000;
+        //elapsedMs += sec * 1000;
         updateDisplay();
         showFlash(sec);
         totalDeductions += sec;
@@ -461,6 +492,28 @@
         dnfStamp.style.display = "flex";
       };
 
+      moreTimeLimitBtn.onclick = () => {
+        const status = document.getElementById("status");
+        console.log("status.textContent " + status.textContent);
+        if (status.textContent.toLocaleLowerCase() == "stopped") {
+          timeLimitMs += 60000;
+          runningTimeMs = timeLimitMs;
+
+          updateTimeRemaining();
+        }
+      };
+      lessTimeLimitBtn.onclick = () => {
+        const status = document.getElementById("status");
+        if (status.textContent.toLocaleLowerCase() == "stopped") {
+          if (timeLimitMs > 600000) {
+            timeLimitMs -= 60000;
+            runningTimeMs = timeLimitMs;
+
+            updateTimeRemaining();
+          }
+        }
+      };
+
       startBtn.onclick = startTimer;
       pauseBtn.onclick = pauseTimer;
       stopBtn.onclick = stopTimer;
@@ -476,15 +529,6 @@
         photoPreview.style.display = "block";
         photoBtn.style.display = "none";
       };
-
-      /* saveBtn.onclick = async () => {
-        const canvas = await html2canvas(captureArea);
-        const a = document.createElement("a");
-        a.confirm = true;
-        a.href = canvas.toDataURL("image/png");
-        a.download = "time-attack.png";
-        a.click();
-      };*/
 
       saveBtn.onclick = async () => {
         if (!window.html2canvas) {

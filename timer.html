@@ -48,8 +48,9 @@
         text-shadow: 0 0 18px rgba(0, 0, 0, 0.8);
         pointer-events: none;
         z-index: 10;
-        border-width: 3;
+        border-width: 3px;
         border-color: #b91c1c;
+        border-style: solid;
       }
 
       .app-header {
@@ -300,6 +301,33 @@
         font-size: x-large;
         margin-left: 15px;
       }
+
+      /* ===== NEW: Badge counter on adjustment buttons ===== */
+      .adjustments button[data-adjust] {
+        position: relative;
+        overflow: visible;
+      }
+
+      .adjust-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        border-radius: 999px;
+        display: none; /* hidden until first press */
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1;
+        background: rgba(248, 250, 252, 0.95);
+        color: #0b1120;
+        border: 2px solid rgba(15, 23, 42, 0.9);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
@@ -350,10 +378,11 @@
       <div class="adjustments">
         <button class="positive" data-adjust="5">+5</button>
         <button class="positive" data-adjust="10">+10</button>
-        <button class="positive" data-adjust="15">+20</button>
+        <button class="positive" data-adjust="20">+20</button>
         <button class="positive" data-adjust="30">+30</button>
         <button class="dnfBtn" id="dnfBtn">DNF</button>
       </div>
+
       <div id="timelimitDiv">
         <div id="timeLimitAdjust">
           <button id="moreTimeLimitBtn">+</button>
@@ -361,11 +390,10 @@
         </div>
 
         <div class="timeElapsedDiv">
-          <div id="timeElapsed" class="timeElapsed">
-            Time Remaining: 00:00
-          </div>
+          <div id="timeElapsed" class="timeElapsed">Time Remaining: 00:00</div>
         </div>
       </div>
+
       <div class="driver-section">
         <label>
           <span>Driver's Name</span>
@@ -416,7 +444,7 @@
         const driverInput = document.getElementById("driverName");
         const driverName = driverInput.value.trim();
 
-        if (driverName == "" || photoPreview.src.length <= 0) {
+        if (driverName == "" || !hasPhoto) {
           alert("MISSING DRIVER NAME OR PHOTO");
           return;
         }
@@ -450,6 +478,38 @@
         setStatus("stopped");
       }
 
+      // ===== NEW: Adjustment press counters (per button) =====
+      function ensureBadge(btn) {
+        let badge = btn.querySelector(".adjust-badge");
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "adjust-badge";
+          badge.textContent = "0";
+          btn.appendChild(badge);
+        }
+        return badge;
+      }
+
+      function incrementAdjustCounter(btn) {
+        const badge = ensureBadge(btn);
+        const current = parseInt(badge.textContent || "0", 10);
+        const next = current + 1;
+        badge.textContent = String(next);
+        badge.style.display = "flex";
+      }
+
+      function resetAdjustCounters() {
+        document
+          .querySelectorAll(".adjustments button[data-adjust]")
+          .forEach((btn) => {
+            const badge = btn.querySelector(".adjust-badge");
+            if (badge) {
+              badge.textContent = "0";
+              badge.style.display = "none";
+            }
+          });
+      }
+
       function resetTimer() {
         running = false;
         clearInterval(intervalId);
@@ -464,6 +524,9 @@
         photoPreview.style.display = "none";
         photoBtn.style.display = "block";
         document.getElementById("driverName").value = "";
+        hasPhoto = false;
+
+        resetAdjustCounters(); // ✅ reset badges
       }
 
       function showFlash(sec) {
@@ -474,17 +537,22 @@
       }
 
       function adjustTime(sec) {
-        //elapsedMs += sec * 1000;
+        // elapsedMs += sec * 1000; // (optional) add penalties to time
         updateDisplay();
         showFlash(sec);
         totalDeductions += sec;
         deductionsText.textContent = `Total Deductions: ${totalDeductions} points`;
       }
 
+      // Bind adjustment buttons: increment counter + apply penalty
       document
         .querySelectorAll(".adjustments button[data-adjust]")
         .forEach((btn) => {
-          btn.onclick = () => adjustTime(parseInt(btn.dataset.adjust, 10));
+          ensureBadge(btn); // create badge (hidden)
+          btn.onclick = () => {
+            incrementAdjustCounter(btn);
+            adjustTime(parseInt(btn.dataset.adjust, 10));
+          };
         });
 
       dnfBtn.onclick = () => {
@@ -494,21 +562,19 @@
 
       moreTimeLimitBtn.onclick = () => {
         const status = document.getElementById("status");
-        console.log("status.textContent " + status.textContent);
         if (status.textContent.toLocaleLowerCase() == "stopped") {
           timeLimitMs += 60000;
           runningTimeMs = timeLimitMs;
-
           updateTimeRemaining();
         }
       };
+
       lessTimeLimitBtn.onclick = () => {
         const status = document.getElementById("status");
         if (status.textContent.toLocaleLowerCase() == "stopped") {
           if (timeLimitMs > 600000) {
             timeLimitMs -= 60000;
             runningTimeMs = timeLimitMs;
-
             updateTimeRemaining();
           }
         }
@@ -519,6 +585,8 @@
       stopBtn.onclick = stopTimer;
       resetBtn.onclick = resetTimer;
 
+      let hasPhoto = false;
+
       photoBtn.onclick = () => photoInput.click();
       photoPreview.onclick = () => photoInput.click();
 
@@ -528,6 +596,7 @@
         photoPreview.src = URL.createObjectURL(file);
         photoPreview.style.display = "block";
         photoBtn.style.display = "none";
+        hasPhoto = true;
       };
 
       saveBtn.onclick = async () => {

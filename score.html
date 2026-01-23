@@ -25,7 +25,7 @@
         color: var(--text);
       }
       .wrap {
-        max-width: 1000px;
+        max-width: 1100px;
         margin: 16px auto;
         padding: 0 14px;
       }
@@ -46,7 +46,8 @@
         margin-bottom: 4px;
         display: block;
       }
-      input {
+      input,
+      select {
         width: 100%;
         padding: 12px;
         border-radius: 10px;
@@ -84,7 +85,7 @@
 
       .grid {
         display: grid;
-        grid-template-columns: 1.4fr 1fr 1fr auto;
+        grid-template-columns: 1fr 1fr 1.4fr 1fr 1fr auto;
         gap: 10px;
       }
       .actions {
@@ -98,15 +99,47 @@
         color: var(--muted);
         align-self: center;
       }
-      .table-wrap {
-        margin-top: 14px;
-        overflow-x: auto;
+
+      .sections {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
 
+      .group-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(14, 22, 49, 0.35);
+      }
+      .group-head {
+        padding: 12px 14px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        background: rgba(18, 26, 51, 0.9);
+        border-bottom: 1px solid var(--line);
+      }
+      .group-title {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+      }
+      .group-meta {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: right;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 760px;
+        min-width: 820px;
       }
       th,
       td {
@@ -155,35 +188,84 @@
           flex-direction: column;
         }
         table {
-          min-width: 680px;
+          min-width: 760px;
+        }
+      }
+
+      /* Floating Randomize Button (bottom-right) */
+      .randomize-fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 999;
+      }
+
+      .randomize-fab .btn {
+        padding: 14px 18px;
+        font-weight: 600;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Mobile: keep it reachable but safe */
+      @media (max-width: 768px) {
+        .randomize-fab {
+          bottom: 14px;
+          right: 14px;
         }
       }
     </style>
   </head>
 
   <body>
+    <!-- Floating Randomize Button -->
+    <div class="randomize-fab">
+      <button class="btn danger" id="randomizeBtn">
+        Randomize Demo Data
+      </button>
+    </div>
     <div class="wrap">
       <h1>
         Time Attack Challenge
         <span style="color: var(--muted); font-size: 12px;"
-          >(30% time / 70% deductions)</span
+          >(30% time / 70% deductions) — separate tables per Scale & Class</span
         >
       </h1>
 
       <div class="card">
         <div class="grid">
           <div>
+            <label for="scale">Scale</label>
+            <select id="scale">
+              <option value="1/10">1/10</option>
+              <option value="1/12">1/12</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="cls">Class</label>
+            <select id="cls">
+              <option value="stock">stock</option>
+              <option value="modified">modified</option>
+              <option value="performance">performance</option>
+              <option value="championship">championship</option>
+            </select>
+          </div>
+
+          <div>
             <label for="name">Player name</label>
             <input id="name" placeholder="Player 1" />
           </div>
+
           <div>
             <label for="time">Time (m:ss)</label>
             <input id="time" placeholder="3:15" />
           </div>
+
           <div>
             <label for="ded">Deductions (0+)</label>
             <input id="ded" type="number" min="0" step="1" placeholder="30" />
           </div>
+
           <div>
             <label>&nbsp;</label>
             <button class="btn primary" id="addBtn">Add Player</button>
@@ -197,38 +279,32 @@
             Clear Table (Delete Saved)
           </button>
           <span class="status" id="status"></span>
-        </div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th class="right">Rank</th>
-                <th>Player</th>
-                <th>Time</th>
-                <th class="right">Sec</th>
-                <th class="right">Deductions</th>
-                <th class="right">TimeScore</th>
-                <th class="right">DedScore</th>
-                <th class="right">Points</th>
-                <th class="right">Remove</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
+          <button class="btn" id="exportBtn">Export to Excel</button>
         </div>
 
         <div class="small">
-          <code>Points = 100 × (0.30 × TimeScore + 0.70 × DeductionScore)</code
-          ><br />
-          Tie-breakers: points → lower deductions → faster time
+          Each group (e.g. <code>1/10 stock</code>) is scored and ranked
+          independently.
+          <br />
+          <code>Points = 100 × (0.30 × TimeScore + 0.70 × DeductionScore)</code>
         </div>
       </div>
+
+      <div class="sections" id="sections"></div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
       // ---- LocalStorage key ----
-      const STORAGE_KEY = "timeAttackPlayers_v1";
+      const STORAGE_KEY = "timeAttackPlayers_v3";
+
+      // ---- Fixed groups (6) ----
+      const SCALES = ["1/10", "1/12"];
+      const CLASSES = ["stock", "modified", "performance", "championship"];
+      function groupKey(scale, cls) {
+        return `${scale}__${cls}`;
+      }
 
       // ---- Utilities ----
       function parseTimeToSeconds(str) {
@@ -267,15 +343,22 @@
       const state = { players: [] };
 
       // ---- DOM ----
+      const scaleEl = document.getElementById("scale");
+      const clsEl = document.getElementById("cls");
       const nameEl = document.getElementById("name");
       const timeEl = document.getElementById("time");
       const dedEl = document.getElementById("ded");
+
       const addBtn = document.getElementById("addBtn");
       const computeBtn = document.getElementById("computeBtn");
+      const randomizeBtn = document.getElementById("randomizeBtn");
       const clearBtn = document.getElementById("clearBtn");
       const clearTableBtn = document.getElementById("clearTableBtn");
-      const tbody = document.getElementById("tbody");
+
       const statusEl = document.getElementById("status");
+      const sectionsEl = document.getElementById("sections");
+
+      const exportBtn = document.getElementById("exportBtn");
 
       function setStatus(msg) {
         statusEl.textContent = msg || "";
@@ -285,7 +368,6 @@
       function saveToStorage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.players));
       }
-
       function loadFromStorage() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
@@ -298,59 +380,148 @@
           return false;
         }
       }
-
       function clearStorage() {
         localStorage.removeItem(STORAGE_KEY);
       }
 
-      // ---- Rendering ----
-      function render() {
-        tbody.innerHTML = "";
+      // ---- Grouping ----
+      function buildGroups() {
+        const groups = new Map();
+        for (const s of SCALES) {
+          for (const c of CLASSES) {
+            groups.set(groupKey(s, c), {
+              scale: s,
+              cls: c,
+              players: [],
+              meta: null,
+            });
+          }
+        }
+        for (const p of state.players) {
+          const k = groupKey(p.scale, p.cls);
+          if (!groups.has(k))
+            groups.set(k, {
+              scale: p.scale,
+              cls: p.cls,
+              players: [],
+              meta: null,
+            });
+          groups.get(k).players.push(p);
+        }
+        return groups;
+      }
 
-        if (state.players.length === 0) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td colspan="9" style="color:var(--muted)">No players yet. Add players, then compute.</td>`;
-          tbody.appendChild(tr);
-          return;
+      // ---- Rendering ----
+      function renderGroups(groups) {
+        sectionsEl.innerHTML = "";
+
+        for (const s of SCALES) {
+          for (const c of CLASSES) {
+            const k = groupKey(s, c);
+            const g = groups.get(k);
+
+            const metaText = g.meta
+              ? `Tmin=${g.meta.Tmin}s, Tmax=${g.meta.Tmax}s, Dmin=${g.meta.Dmin}, Dmax=${g.meta.Dmax}`
+              : g.players.length < 2
+              ? "Add at least 2 players to compute."
+              : "Ready.";
+
+            const card = document.createElement("div");
+            card.className = "group-card";
+            card.innerHTML = `
+              <div class="group-head">
+                <div class="group-title">${escapeHtml(s)} — ${escapeHtml(
+              c
+            )}</div>
+                <div class="group-meta">${escapeHtml(metaText)}</div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="right">Rank</th>
+                      <th>Player</th>
+                      <th>Time</th>
+                      <th class="right">Sec</th>
+                      <th class="right">Deductions</th>
+                      <th class="right">TimeScore</th>
+                      <th class="right">DedScore</th>
+                      <th class="right">Points</th>
+                      <th class="right">Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody data-group="${escapeHtml(k)}"></tbody>
+                </table>
+              </div>
+            `;
+            sectionsEl.appendChild(card);
+
+            const tbody = card.querySelector(
+              `tbody[data-group="${CSS.escape(k)}"]`
+            );
+
+            if (!g.players || g.players.length === 0) {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `<td colspan="9" style="color:var(--muted)">No players in this group.</td>`;
+              tbody.appendChild(tr);
+              continue;
+            }
+
+            const ordered = [...g.players].sort((a, b) => {
+              const ra = a.rank ?? 9999;
+              const rb = b.rank ?? 9999;
+              if (ra !== rb) return ra - rb;
+
+              const pa = a.points ?? -1;
+              const pb = b.points ?? -1;
+              if (pb !== pa) return pb - pa;
+
+              if (a.deductions !== b.deductions)
+                return a.deductions - b.deductions;
+              return a.timeSec - b.timeSec;
+            });
+
+            ordered.forEach((p) => {
+              const tr = document.createElement("tr");
+              const rank = p.rank ?? "";
+              const rankClass =
+                rank === 1 || rank === 2 || rank === 3 ? "rank winner" : "rank";
+
+              tr.innerHTML = `
+                <td class="right ${rankClass}">${rank}</td>
+                <td>${escapeHtml(p.name)}</td>
+                <td>${escapeHtml(p.timeStr)}</td>
+                <td class="right">${p.timeSec ?? ""}</td>
+                <td class="right">${p.deductions ?? ""}</td>
+                <td class="right">${
+                  p.timeScore != null ? round(p.timeScore, 4) : ""
+                }</td>
+                <td class="right">${
+                  p.dedScore != null ? round(p.dedScore, 4) : ""
+                }</td>
+                <td class="right">${
+                  p.points != null ? round(p.points, 2) : ""
+                }</td>
+                <td class="right"><button class="btn" data-remove="${
+                  p.id
+                }">X</button></td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
         }
 
-        state.players.forEach((p) => {
-          const tr = document.createElement("tr");
-          const rank = p.rank ?? "";
-          const rankClass =
-            rank === 1 || rank === 2 || rank === 3 ? "rank winner" : "rank";
-
-          tr.innerHTML = `
-        <td class="right ${rankClass}">${rank}</td>
-        <td>${escapeHtml(p.name)}</td>
-        <td>${escapeHtml(p.timeStr)}</td>
-        <td class="right">${p.timeSec ?? ""}</td>
-        <td class="right">${p.deductions ?? ""}</td>
-        <td class="right">${
-          p.timeScore != null ? round(p.timeScore, 4) : ""
-        }</td>
-        <td class="right">${p.dedScore != null ? round(p.dedScore, 4) : ""}</td>
-        <td class="right">${p.points != null ? round(p.points, 2) : ""}</td>
-        <td class="right"><button class="btn" data-remove="${
-          p.id
-        }">X</button></td>
-      `;
-          tbody.appendChild(tr);
-        });
-
-        // remove handlers
-        tbody.querySelectorAll("button[data-remove]").forEach((btn) => {
+        sectionsEl.querySelectorAll("button[data-remove]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = btn.getAttribute("data-remove");
             state.players = state.players.filter((p) => p.id !== id);
-            compute(false); // recompute (no forced save here; compute() will save)
+            compute(false);
           });
         });
       }
 
-      // ---- Core computation (and optional save) ----
+      // ---- Compute per group ----
       function compute(showStatus = true) {
-        // Reset computed fields
         state.players.forEach((p) => {
           p.timeScore = null;
           p.dedScore = null;
@@ -358,63 +529,73 @@
           p.rank = null;
         });
 
-        if (state.players.length < 2) {
-          if (showStatus)
-            setStatus("Add at least 2 players to compute rankings.");
-          render();
-          // still save so you don't lose entered data
-          saveToStorage();
-          return;
+        const groups = buildGroups();
+
+        for (const [k, g] of groups.entries()) {
+          const arr = g.players;
+          g.meta = null;
+
+          if (!arr || arr.length === 0) continue;
+          if (arr.length < 2) {
+            arr.forEach((p) => {
+              p.rank = "";
+            });
+            continue;
+          }
+
+          const times = arr.map((p) => p.timeSec);
+          const deds = arr.map((p) => p.deductions);
+
+          const Tmin = Math.min(...times);
+          const Tmax = Math.max(...times);
+          const Dmin = Math.min(...deds);
+          const Dmax = Math.max(...deds);
+
+          const timeDen = Tmax - Tmin;
+          const dedDen = Dmax - Dmin;
+
+          g.meta = { Tmin, Tmax, Dmin, Dmax };
+
+          arr.forEach((p) => {
+            const timeScore = timeDen === 0 ? 1 : (Tmax - p.timeSec) / timeDen;
+            const dedScore = dedDen === 0 ? 1 : (Dmax - p.deductions) / dedDen;
+
+            p.timeScore = clamp01(timeScore);
+            p.dedScore = clamp01(dedScore);
+            p.points = 100 * (0.3 * p.timeScore + 0.7 * p.dedScore);
+          });
+
+          const sortedGroup = [...arr].sort((a, b) => {
+            if (b.points !== a.points) return b.points - a.points;
+            if (a.deductions !== b.deductions)
+              return a.deductions - b.deductions;
+            return a.timeSec - b.timeSec;
+          });
+
+          sortedGroup.forEach((p, i) => {
+            p.rank = i + 1;
+          });
         }
 
-        const times = state.players.map((p) => p.timeSec);
-        const deds = state.players.map((p) => p.deductions);
-
-        const Tmin = Math.min(...times);
-        const Tmax = Math.max(...times);
-        const Dmin = Math.min(...deds);
-        const Dmax = Math.max(...deds);
-
-        const timeDen = Tmax - Tmin;
-        const dedDen = Dmax - Dmin;
-
-        state.players.forEach((p) => {
-          const timeScore = timeDen === 0 ? 1 : (Tmax - p.timeSec) / timeDen;
-          const dedScore = dedDen === 0 ? 1 : (Dmax - p.deductions) / dedDen;
-
-          p.timeScore = clamp01(timeScore);
-          p.dedScore = clamp01(dedScore);
-          p.points = 100 * (0.3 * p.timeScore + 0.7 * p.dedScore);
-        });
-
-        // Sort with tie-breakers: points desc, deductions asc, time asc
-        const sorted = [...state.players].sort((a, b) => {
-          if (b.points !== a.points) return b.points - a.points;
-          if (a.deductions !== b.deductions) return a.deductions - b.deductions;
-          return a.timeSec - b.timeSec;
-        });
-
-        sorted.forEach((p, i) => {
-          p.rank = i + 1;
-        });
-        state.players = sorted;
-
+        renderGroups(groups);
+        saveToStorage();
         if (showStatus)
-          setStatus(
-            `Computed & saved. Tmin=${Tmin}s, Tmax=${Tmax}s, Dmin=${Dmin}, Dmax=${Dmax}.`
-          );
-
-        render();
-        saveToStorage(); // ✅ SAVE ON COMPUTE (and after removals)
+          setStatus("Computed & saved. Rankings are independent per group.");
       }
 
       // ---- Add player ----
       function addPlayer() {
+        const scale = (scaleEl.value || "").trim();
+        const cls = (clsEl.value || "").trim();
+
         const name = (nameEl.value || "").trim();
         const timeStr = (timeEl.value || "").trim();
         const dedStr = (dedEl.value || "").trim();
 
+        if (!scale) return setStatus("Scale is required.");
+        if (!cls) return setStatus("Class is required.");
         if (!name) return setStatus("Player name is required.");
+
         const timeSec = parseTimeToSeconds(timeStr);
         if (timeSec == null)
           return setStatus("Time must be in m:ss (e.g., 3:15).");
@@ -427,6 +608,8 @@
           id: crypto.randomUUID
             ? crypto.randomUUID()
             : String(Date.now() + Math.random()),
+          scale,
+          cls,
           name,
           timeStr: formatSecondsToTime(timeSec),
           timeSec,
@@ -441,14 +624,207 @@
         timeEl.value = "";
         dedEl.value = "";
 
-        setStatus("Player added. Click Compute Points to calculate + save.");
-        render();
-        // Not saving on add by request — saving happens on Compute.
+        setStatus("Player added.");
+        compute(false);
+      }
+
+      // ---- Randomize helpers ----
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      function randomName(idx) {
+        const A = [
+          "Swift",
+          "Drift",
+          "Apex",
+          "Turbo",
+          "Vortex",
+          "Neon",
+          "Shadow",
+          "Blaze",
+          "Nova",
+          "Rogue",
+          "Pixel",
+          "Zen",
+        ];
+        const B = [
+          "Fox",
+          "Wolf",
+          "Hawk",
+          "Cobra",
+          "Tiger",
+          "Eagle",
+          "Mantis",
+          "Panda",
+          "Raven",
+          "Lynx",
+          "Falcon",
+          "Orca",
+        ];
+        return `${A[randInt(0, A.length - 1)]} ${
+          B[randInt(0, B.length - 1)]
+        } #${idx}`;
+      }
+      function randomTimeSec(scale, cls) {
+        // Slightly different ranges so it "feels" different by group
+        const baseMin = scale === "1/10" ? 170 : 175; // seconds
+        const baseMax = scale === "1/10" ? 230 : 240;
+
+        const classBias = cls === "stock" ? 12 : cls === "modified" ? 6 : 0; // performance fastest
+
+        return randInt(baseMin + classBias, baseMax + classBias);
+      }
+      function randomDeductions(cls) {
+        // Stock tends to be cleaner, performance tends to be riskier
+        const max = cls === "stock" ? 140 : cls === "modified" ? 180 : 220;
+        // include 0 sometimes
+        const roll = Math.random();
+        if (roll < 0.12) return 0;
+        return randInt(0, max);
+      }
+
+      function randomizeAllGroups() {
+        // Replace existing data with new random set
+        state.players = [];
+
+        const perGroup = 5; // ensure >=2 per group; adjust if you want more
+
+        let counter = 1;
+        for (const s of SCALES) {
+          for (const c of CLASSES) {
+            for (let i = 0; i < perGroup; i++) {
+              const tSec = randomTimeSec(s, c);
+              state.players.push({
+                id: crypto.randomUUID
+                  ? crypto.randomUUID()
+                  : String(Date.now() + Math.random()),
+                scale: s,
+                cls: c,
+                name: randomName(counter++),
+                timeStr: formatSecondsToTime(tSec),
+                timeSec: tSec,
+                deductions: randomDeductions(c),
+                timeScore: null,
+                dedScore: null,
+                points: null,
+                rank: null,
+              });
+            }
+          }
+        }
+
+        // Shuffle overall list so it isn't grouped by creation
+        for (let i = state.players.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [state.players[i], state.players[j]] = [
+            state.players[j],
+            state.players[i],
+          ];
+        }
+
+        compute(true); // compute + save + render
+        setStatus("Randomized all groups, computed & saved.");
+      }
+
+      function exportToExcel() {
+        if (typeof XLSX === "undefined") {
+          alert(
+            "Excel export library failed to load. Check internet or CDN link."
+          );
+          return;
+        }
+
+        // Ensure latest scores/ranks are calculated
+        compute(false);
+
+        const groups = buildGroups(); // your existing function
+        // NOTE: compute(false) already set ranks/points. buildGroups() just groups players.
+
+        const wb = XLSX.utils.book_new();
+
+        function safeSheetName(scale, cls) {
+          // Excel sheet name max 31 chars, no special chars like / \
+          const s = scale.replace("/", "_"); // 1/10 -> 1_10
+          return `${s}_${cls}`.slice(0, 31);
+        }
+
+        for (const s of SCALES) {
+          for (const c of CLASSES) {
+            const key = groupKey(s, c);
+            const g = groups.get(key);
+            const sheetName = safeSheetName(s, c);
+
+            const header = [
+              "Rank",
+              "Player",
+              "Time",
+              "Sec",
+              "Deductions",
+              "TimeScore",
+              "DedScore",
+              "Points",
+            ];
+
+            const rows = [header];
+
+            const players = (g?.players || []).slice().sort((a, b) => {
+              const ra = a.rank ?? 9999;
+              const rb = b.rank ?? 9999;
+              if (ra !== rb) return ra - rb;
+              const pa = a.points ?? -1;
+              const pb = b.points ?? -1;
+              if (pb !== pa) return pb - pa;
+              if (a.deductions !== b.deductions)
+                return a.deductions - b.deductions;
+              return a.timeSec - b.timeSec;
+            });
+
+            for (const p of players) {
+              rows.push([
+                p.rank ?? "",
+                p.name ?? "",
+                p.timeStr ?? "",
+                p.timeSec ?? "",
+                p.deductions ?? "",
+                p.timeScore != null ? Number(p.timeScore.toFixed(4)) : "",
+                p.dedScore != null ? Number(p.dedScore.toFixed(4)) : "",
+                p.points != null ? Number(p.points.toFixed(2)) : "",
+              ]);
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+
+            // Optional: make columns a bit wider
+            ws["!cols"] = [
+              { wch: 6 }, // Rank
+              { wch: 22 }, // Player
+              { wch: 8 }, // Time
+              { wch: 6 }, // Sec
+              { wch: 10 }, // Deductions
+              { wch: 10 }, // TimeScore
+              { wch: 10 }, // DedScore
+              { wch: 8 }, // Points
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+          }
+        }
+
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        const filename = `time-attack-results_${yyyy}-${mm}-${dd}.xlsx`;
+
+        XLSX.writeFile(wb, filename);
       }
 
       // ---- Wire up ----
       addBtn.addEventListener("click", addPlayer);
       computeBtn.addEventListener("click", () => compute(true));
+      randomizeBtn.addEventListener("click", randomizeAllGroups);
+
+      exportBtn.addEventListener("click", exportToExcel);
 
       clearBtn.addEventListener("click", () => {
         nameEl.value = "";
@@ -460,27 +836,22 @@
       clearTableBtn.addEventListener("click", () => {
         state.players = [];
         clearStorage();
-        setStatus("Table cleared and saved data deleted.");
-        render();
+        setStatus("All groups cleared and saved data deleted.");
+        compute(false);
       });
 
-      // Enter key to add
       [nameEl, timeEl, dedEl].forEach((el) => {
         el.addEventListener("keydown", (e) => {
           if (e.key === "Enter") addPlayer();
         });
       });
 
-      // ---- On load: restore saved data and show it ----
+      // ---- On load ----
       const restored = loadFromStorage();
-      render();
-      if (restored && state.players.length > 0) {
-        // Recompute on load so ranks/points are consistent with formula
-        compute(false);
-        setStatus("Loaded saved data.");
-      } else {
-        setStatus("Ready.");
-      }
+      compute(false);
+      setStatus(
+        restored && state.players.length > 0 ? "Loaded saved data." : "Ready."
+      );
     </script>
   </body>
 </html>

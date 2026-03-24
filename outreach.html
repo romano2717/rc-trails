@@ -24,7 +24,8 @@
     }
 
     .hero {
-      background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.8));
+      position: relative;
+      background: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85));
       color: var(--white);
       min-height: 90vh;
       display: flex;
@@ -32,6 +33,16 @@
       justify-content: center;
       text-align: center;
       padding: 2rem;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('southside-rc-logo.png') center/60% no-repeat;
+      opacity: 0.12;
+      pointer-events: none;
     }
 
     .hero-content {

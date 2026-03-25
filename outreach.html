@@ -152,6 +152,25 @@
       padding: 1.5rem;
       font-size: 0.95rem;
     }
+  
+
+    .slideshow {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+    }
+
+    .slide.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -261,10 +280,26 @@
         A glimpse of our RC trail runs in Pitogo Dos — showcasing the trails we enjoy and the community we continue to build together.
       </p>
       <div style="text-align:center;">
-        <video controls autoplay muted loop playsinline poster="southside-rc-logo.png" style="width:100%; max-width:800px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <video controls autoplay muted loop playsinline poster="southside-rc-logo.png" style="width:100%; max-width:800px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); margin-bottom:1.5rem;">
           <source src="pitogo2trail.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
+
+        <div class="slideshow">
+          <img class="slide active" src="1.jpg">
+          <img class="slide" src="2.jpg">
+          <img class="slide" src="3.jpg">
+          <img class="slide" src="4.jpg">
+          <img class="slide" src="5.jpg">
+          <img class="slide" src="6.jpg">
+          <img class="slide" src="7.jpg">
+          <img class="slide" src="8.jpg">
+          <img class="slide" src="9.jpg">
+          <img class="slide" src="10.jpg">
+          <img class="slide" src="11.jpg">
+          <img class="slide" src="12.jpg">
+        </div>
+      </div>
       </div>
     </div>
   </section>
@@ -309,5 +344,18 @@
   <footer>
     <p>&copy; 2026 Southside Cebu RC. All rights reserved.</p>
   </footer>
+
+<script>
+  let index = 0;
+  const slides = document.querySelectorAll('.slide');
+
+  function showSlides() {
+    slides.forEach(s => s.classList.remove('active'));
+    index = (index + 1) % slides.length;
+    slides[index].classList.add('active');
+  }
+
+  setInterval(showSlides, 3000);
+</script>
 </body>
 </html>

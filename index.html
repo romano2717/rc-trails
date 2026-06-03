@@ -105,7 +105,7 @@
       white-space: nowrap;
     }
 
-    /* MAIN CARD */
+    /* CARD */
     .trail-box {
       position: relative;
       border: 1px solid #ddd;
@@ -117,14 +117,14 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    /* EXPANDED BACKGROUND */
+    /* EXPANDED FADED BACKGROUND */
     .trail-bg {
       position: absolute;
-      inset: -80px;
+      inset: -120px;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      opacity: 0.05;
+      opacity: 0.04;
       z-index: 0;
       filter: blur(2px);
     }
@@ -133,19 +133,42 @@
     .trail-content {
       position: relative;
       z-index: 2;
+      padding-top: 230px;
+    }
+
+    /* BADGE */
+    .big-badge {
+      position: absolute;
+
+      top: 14px;
+      right: 14px;
+
+      width: 200px;
+      height: 200px;
+
+      object-fit: contain;
+
+      opacity: 0.98;
+
+      z-index: 9999;
+
+      pointer-events: none;
     }
 
     /* BADGE LABEL */
     .badge-label {
       position: absolute;
+
       top: 12px;
       right: 14px;
-      z-index: 4;
 
-      background: rgba(0,0,0,0.65);
+      z-index: 10000;
+
+      background: rgba(0,0,0,0.72);
       color: white;
 
       padding: 4px 10px;
+
       border-radius: 999px;
 
       font-size: 11px;
@@ -155,25 +178,14 @@
       backdrop-filter: blur(4px);
     }
 
-    /* SMALL BADGE TOP RIGHT */
-    .big-badge {
-      position: absolute;
-      top: 40px;
-      right: 14px;
-      width: 200px;
-      height: 200px;
-      object-fit: contain;
-      opacity: 0.95;
-      z-index: 3;
-      pointer-events: none;
-    }
-
     iframe {
       width: 100%;
       height: 280px;
       border: 0;
       border-radius: 6px;
       margin-top: 0.5rem;
+      position: relative;
+      z-index: 1;
     }
 
     .label {
@@ -194,17 +206,24 @@
 
     @media (max-width: 700px) {
 
+      .trail-content {
+        padding-top: 140px;
+      }
+
       .big-badge {
         width: 110px;
         height: 110px;
-        top: 38px;
+
+        top: 30px;
         right: 8px;
-        opacity: 0.85;
+
+        opacity: 0.92;
       }
 
       .badge-label {
         top: 8px;
         right: 8px;
+
         font-size: 9px;
         padding: 3px 8px;
       }
@@ -252,7 +271,6 @@
         font-size: 0.9rem;
       }
     }
-
   </style>
 </head>
 
@@ -266,9 +284,7 @@
 
       <div class="pager">
         <button id="prevBtn">Prev</button>
-
         <span id="pageInfo"></span>
-
         <button id="nextBtn">Next</button>
       </div>
 
@@ -284,9 +300,7 @@
 
   <script>
 
-    // TRAILS
     const trails = [
-
       {
         address: "San Carlos Heights, Quiot Pardo, Cebu City",
         trail: "San Carlos Heights",
@@ -296,7 +310,6 @@
         parkingLng: 123.85568588312827,
         badge:"sncarlos.png"
       },
-
       {
         address: "Naga Boardwalk",
         trail: "Naga Boardwalk",
@@ -306,7 +319,6 @@
         parkingLng: 123.76091514274972,
         badge:"default.png"
       },
-
       {
         address: "Maghaway Rd, Talisay City",
         trail: "Maghaway NDNR",
@@ -316,7 +328,6 @@
         parkingLng: 123.81575773234685,
         badge:"maghaway.png"
       },
-
       {
         address: "Inayagan-Cantao-an Rd, Naga City",
         trail: "Pangilatan",
@@ -326,7 +337,6 @@
         parkingLng: 123.7673207726221,
         badge:"pangilatan.png"
       },
-
       {
         address: "Move Park, Liloan, Cebu",
         trail: "Move Park",
@@ -336,7 +346,6 @@
         parkingLng: 123.99931333669014,
         badge:"movepark.png"
       },
-
       {
         address: "Parola Lighthouse, Liloan, Cebu",
         trail: "Parola",
@@ -346,7 +355,6 @@
         parkingLng: 124.01817295081925,
         badge:"default.png"
       },
-
       {
         address: "Tuyan, Naga City, Cebu",
         trail: "Magdook",
@@ -355,105 +363,21 @@
         parkingLat: 10.229348054282951,
         parkingLng: 123.762123543429,
         badge:"magdooc.png"
-      },
-
-      {
-        address: "Manduwang, Minglanilla",
-        trail: "Manduwang river trail",
-        locationLat: 10.279766387090374,
-        locationLng: 123.78291139120456,
-        parkingLat: 10.279766387090374,
-        parkingLng: 123.78291139120456,
-        badge:"default.png"
-      },
-
-      {
-        address: "Bonbon Aloguinsan",
-        trail: "Fatony trailing",
-        locationLat: 10.230064210763155,
-        locationLng: 123.55664604599623,
-        parkingLat: 10.230064210763155,
-        parkingLng: 123.55664604599623,
-        badge:"default.png"
-      },
-
-      {
-        address: "Pitogo 2, Minglanilla",
-        trail: "Pitogo 2 river and dirt trail",
-        locationLat: 10.273496643736154,
-        locationLng: 123.80644224170622,
-        parkingLat: 10.272474263941392,
-        parkingLng: 123.80922105973617,
-        badge:"pitogodos.png"
-      },
-
-      {
-        address: "Talamban, Cebu City",
-        trail: "D' Family Park",
-        locationLat: 10.359447171983577,
-        locationLng: 123.91114074699736,
-        parkingLat: 10.359177066935976,
-        parkingLng: 123.91115242807102,
-        badge:"bonita.png"
-      },
-
-      {
-        address: "Uldog Street, Poblacion, Talisay, Philippines, 6045",
-        trail: "Kadlawn88 Car Wash and Cafe Cebu",
-        locationLat: 10.251387933205367,
-        locationLng: 123.84646945591768,
-        parkingLat: 10.251387933205367,
-        parkingLng: 123.84646945591768,
-        badge:"default.png"
-      },
-
-      {
-        address: "Pitogo 1, Minglanilla, Cebu",
-        trail: "Southern Hills",
-        locationLat: 10.269783193722716,
-        locationLng: 123.80441569999999,
-        parkingLat: 10.269783193722716,
-        parkingLng: 123.80441569999999,
-        badge:"southernhills.png"
-      },
-
-      {
-        address: "Bonita, Talamban",
-        trail: "Bonita hits",
-        locationLat: 10.381504548665372,
-        locationLng: 123.90436633481724,
-        parkingLat: 10.381504548665372,
-        parkingLng: 123.90436633481724,
-        badge:"bonita.png"
-      },
-
-      {
-        address: "Balamban",
-        trail: "F*CK SHIPPING",
-        locationLat: 10.381433783338043,
-        locationLng: 123.90404531506411,
-        parkingLat: 10.381433783338043,
-        parkingLng: 123.90404531506411,
-        badge:"default.png"
       }
-
     ];
 
     function makeMapEmbed(lat, lng) {
-
       return "https://www.google.com/maps?q=" +
              lat + "," + lng +
              "&hl=en&z=17&output=embed&t=k";
     }
 
     function makeGmapsLink(lat, lng) {
-
       return "https://www.google.com/maps?q=" +
              lat + "," + lng;
     }
 
     function makeDirectionsURL(lat, lng) {
-
       return "https://www.google.com/maps/dir/?api=1&destination=" +
              lat + "," + lng +
              "&travelmode=driving";
@@ -528,7 +452,6 @@
       document.getElementById("shareBtn");
 
     function copyToClipboard(text) {
-
       navigator.clipboard.writeText(text);
     }
 
@@ -552,11 +475,12 @@
         t.badge +
         '\')"></div>';
 
+      // CONTENT WRAPPER
+      html += '<div class="trail-content">';
+
       // LABEL
       html +=
-        '<div class="badge-label">' +
-        'COMPLETION STICKER' +
-        '</div>';
+        '<div class="badge-label">COMPLETION STICKER</div>';
 
       // BADGE
       html +=
@@ -565,9 +489,6 @@
         '" alt="' +
         t.trail +
         ' badge">';
-
-      // CONTENT
-      html += '<div class="trail-content">';
 
       html +=
         '<span class="label">Address:</span>';
@@ -596,4 +517,83 @@
         ) +
         '" loading="lazy"></iframe>';
 
-      // PARK
+      // PARKING
+      html +=
+        '<div class="parking-row">Parking:' +
+
+        '<span class="copy-icon" onclick="copyToClipboard(\'' +
+        gmapsLink +
+        '\')">📋</span>' +
+
+        '<button class="directions-inline" onclick="window.open(\'' +
+        makeDirectionsURL(
+          t.parkingLat,
+          t.parkingLng
+        ) +
+        '\', \'_blank\')">GET DIRECTIONS</button>' +
+
+        '</div>';
+
+      html +=
+        '<iframe src="' +
+        makeMapEmbed(
+          t.parkingLat,
+          t.parkingLng
+        ) +
+        '" loading="lazy"></iframe>';
+
+      html += "</div>"; // trail-content
+      html += "</div>"; // trail-box
+
+      trailContainer.innerHTML = html;
+
+      pageInfo.textContent =
+        "Trail " +
+        (index + 1) +
+        " of " +
+        trails.length;
+
+      prevBtn.disabled =
+        index === 0;
+
+      nextBtn.disabled =
+        index === trails.length - 1;
+
+      updateUrl(index);
+      updateTitle(index);
+    }
+
+    prevBtn.addEventListener("click", () => {
+
+      if (currentIndex > 0) {
+
+        currentIndex--;
+
+        renderTrail(currentIndex);
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+
+      if (currentIndex < trails.length - 1) {
+
+        currentIndex++;
+
+        renderTrail(currentIndex);
+      }
+    });
+
+    shareBtn.addEventListener("click", () => {
+
+      const link =
+        getShareUrl(currentIndex);
+
+      copyToClipboard(link);
+    });
+
+    renderTrail(currentIndex);
+
+  </script>
+
+</body>
+</html>

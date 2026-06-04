@@ -234,6 +234,12 @@
       .parking-row {
         font-size: 0.9rem;
       }
+      .location-map {
+  margin-top: 160px;
+}
+    }
+    .location-map {
+      margin-top: 280px;
     }
   </style>
 </head>
@@ -469,7 +475,7 @@
       html += '<div>' + t.trail + '</div>';
 
       html += '<span class="label">Location:</span>';
-      html += '<iframe src="' + makeMapEmbed(t.locationLat, t.locationLng) + '" loading="lazy"></iframe>';
+      html += '<iframe class="location-map" src="' + makeMapEmbed(t.locationLat, t.locationLng) + '" loading="lazy"></iframe>';
 
       html +=
         '<div class="parking-row">Parking:' +
